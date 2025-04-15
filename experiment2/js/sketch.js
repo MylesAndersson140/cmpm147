@@ -129,8 +129,7 @@ function setup() {
   canvasContainer = $("#canvas-container");
   let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
   canvas.parent("canvas-container");
-  let reimagineButton = createButton("New Sky");
-  reimagineButton.mousePressed(() => {
+  document.getElementById("new-sky").addEventListener("click", function() {
     seed = floor(random(1000));
     generateSkyProperties();
   });
