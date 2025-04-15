@@ -1,5 +1,3 @@
-explain how the Colors, Primitives, Polygons, Generativity, and Life
-
 EXPERIMENT 02 - LIVING IMPRESSIONS
 DATE: 04/14/2025
 
