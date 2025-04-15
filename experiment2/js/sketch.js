@@ -20,8 +20,10 @@ let cloudThickness = 0;
 let treeX, treeY;
 let trunkHeight, trunkWidth;
 let trunkCurve;
+let trunkColor;
 let leafSize;
 let leafDensity;
+let leafColor;
 
 function resizeScreen() {
   centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
@@ -55,9 +57,19 @@ function generateSkyProperties() {
   treeY = height;
   trunkHeight = height * random(0.3, 0.5);
   trunkWidth = width * random(0.01, 0.02);
-  trunkCurve = random(-0.2, 0.2); //trunk curve
-  leafSize = width * random(0.05, 0.12); //leaf cluster size
-  leafDensity = random(0.7, 2.5); //leaf density
+  trunkCurve = random(-0.2, 0.2); 
+  leafSize = width * random(0.05, 0.12); 
+  leafDensity = random(0.7, 2.5); 
+
+  let brownR = random(60, 100);
+  let brownG = random(30, 60);
+  let brownB = random(10, 30);
+  trunkColor = color(brownR, brownG, brownB);
+
+  let greenR = random(10, 50);
+  let greenG = random(30, 180);
+  let greenB = random(20, 80);
+  leafColor = color(greenR, greenG, greenB);
 }
 
 // setup() function is called once when the program starts
@@ -164,15 +176,14 @@ function drawCloudPattern() {
 }
 
 function drawTree() {
-  fill(0);
-  noStroke();
   
   //Tree height
   let trunkTopX = treeX + trunkCurve * trunkHeight;
   let trunkTopY = treeY - trunkHeight;
   
   //better trunk using a bezier curve
-  fill(0);
+  fill(trunkColor);
+  noStroke();
   beginShape();
   //bottom left of trunk
   vertex(treeX - trunkWidth/2, treeY);
@@ -197,12 +208,12 @@ function drawTree() {
   endShape(CLOSE);
   
   //draw static-y looking leaves at the top
-  drawStaticLeaves(trunkTopX, trunkTopY, leafSize, leafDensity);
+  drawLeaves(trunkTopX, trunkTopY, leafSize, leafDensity);
 }
 
-function drawStaticLeaves(x, y, size, density) {
+function drawLeaves(x, y, size, density) {
   //static leaf clusters using multiple small circles
-  fill(0);
+  fill(leafColor);
   noStroke();
   
   let numLeaves = floor(size * density * 10);
@@ -210,8 +221,8 @@ function drawStaticLeaves(x, y, size, density) {
   //using noise to create a general leaf cluster shape
   for (let i = 0; i < numLeaves; i++) {
     //using noise to determine the position within the cluster
-    let angle = random(TWO_PI);
-    let radius = random(size * 0.15, size * 0.5) * noise(i * 0.1, seed);
+    let angle = random(10);
+    let radius = random(size * 0.8, size * 0.5) * noise(i * 0.1 , seed);
     
     let leafX = x + cos(angle) * radius;
     let leafY = y + sin(angle) * radius * 0.8;
