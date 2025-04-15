@@ -25,6 +25,14 @@ let leafSize;
 let leafDensity;
 let leafColor;
 
+//general ground foliage
+let foliageColors = [];
+let foliageHeight;
+let foliageSegments;
+let foliageVertices = [];
+
+let grassBlades = [];
+
 function resizeScreen() {
   centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
   centerVert = canvasContainer.height() / 2; // Adjusted for drawing logic
@@ -70,6 +78,49 @@ function generateSkyProperties() {
   let greenG = random(30, 180);
   let greenB = random(20, 80);
   leafColor = color(greenR, greenG, greenB);
+
+  foliageColors.push(color(10, 50, 20));   
+  foliageColors.push(color(20, 70, 30));   
+  foliageColors.push(color(30, 90, 40));   
+  foliageColors.push(color(40, 100, 50));  
+  
+  foliageHeight = height * random(0.1, 0.18); 
+  foliageSegments = floor(random(15, 30));
+  generateStaticFoliage();
+  createGrassBlades();
+}
+
+//a function that creates static foliage upon each creation
+function generateStaticFoliage() {
+  foliageVertices = [];
+  
+  //vertices for each layer of foliage
+  for (let layer = 0; layer < foliageColors.length; layer++) {
+    let layerVerts = [];
+    let layerHeight = foliageHeight * (1 - layer * 0.15);
+    
+    //add first point (bottom left)
+    layerVerts.push({x: 0, y: height});
+    
+    //top with varying heights
+    for (let i = 0; i <= foliageSegments; i++) {
+      let x = (width / foliageSegments) * i;
+      
+      // Use perlin noise for natural variation
+      let noiseVal = noise(i * 0.2, layer * 10, seed * 0.1);
+      let y = height - layerHeight * noiseVal * random(0.7, 1.3);
+      
+      //randomness for a more natural look
+      let xOffset = random(-5, 5);
+      
+      layerVerts.push({x: x + xOffset, y: y});
+    }
+    
+    //add last point (bottom right)
+    layerVerts.push({x: width, y: height});
+    
+    foliageVertices.push(layerVerts);
+  }
 }
 
 // setup() function is called once when the program starts
@@ -100,8 +151,11 @@ function draw() {
   //Draw cloud ripple pattern
   drawCloudPattern();
   
-  //tree / foliage
+  //complex tree
   drawTree();
+
+  //foliage
+  drawFoliage();
 
   //Show current seed value
   fill(255);
@@ -231,6 +285,67 @@ function drawLeaves(x, y, size, density) {
     let leafRadius = random(size * 0.03, size * 0.15);
     
     ellipse(leafX, leafY, leafRadius, leafRadius);
+  }
+}
+
+function drawFoliage() {
+  noStroke();
+  
+  //static ground foliage
+  for (let layer = 0; layer < foliageColors.length; layer++) {
+    fill(foliageColors[layer]);
+    
+    beginShape();
+    for (let vert of foliageVertices[layer]) {
+      vertex(vert.x, vert.y);
+    }
+    endShape(CLOSE);
+  }
+  
+  drawAnimatedGrass();
+}
+
+//function to create grass blades
+function createGrassBlades() {
+  grassBlades = [];
+  
+  //grass blade creation
+  for (let i = 0; i < width; i += random(5, 20)) {
+    //grass color
+    let colorIndex = floor(random(foliageColors.length * 0.8));
+    colorIndex = constrain(colorIndex, 0, foliageColors.length - 1);
+    
+    let grassHeight = random(10, foliageHeight * 0.7);
+    let grassWidth = random(1, 4);
+    let baseX = i + random(-5, 5);
+    
+    //grass blade animation
+    grassBlades.push({
+      baseX: baseX,
+      baseWidth: grassWidth,
+      height: grassHeight,
+      color: foliageColors[colorIndex],
+      swaySpeed: random(0.08, 0.16),
+      swayAmount: random(2, 8),
+      phase: random(5)
+    });
+  }
+}
+
+//function to draw animated grass
+function drawAnimatedGrass() {
+  for (let blade of grassBlades) {
+    fill(blade.color);
+    
+    //calculating blade sway based on the time
+    let swayOffset = sin(frameCount * blade.swaySpeed + blade.phase) * blade.swayAmount;
+    
+    //grass blade with sway
+    beginShape();
+    vertex(blade.baseX - blade.baseWidth/2, height);
+    vertex(blade.baseX + blade.baseWidth/2, height);
+    vertex(blade.baseX + swayOffset, height - blade.height);
+    endShape(CLOSE);
   }
 }
 
