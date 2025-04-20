@@ -2,8 +2,8 @@
 let seed = 0;
 let tilesetImage;
 let currentGrid = [];
-let numRows = 10; // Default size if asciiBox isn't available
-let numCols = 10; // Default size if asciiBox isn't available
+let numRows = 10;  //change these if you want the grid to be bigger
+let numCols = 10; 
 let canvasContainer;
 
 function preload() {
@@ -13,41 +13,40 @@ function preload() {
   );
 }
 
-function resizeScreen() {
-  console.log("Resizing...");
-  resizeCanvas(canvasContainer.width(), canvasContainer.height());
-}
-
-// setup() function is called once when the program starts
+//setup() function is called once when the program starts
 function setup() {
-  // Get canvas container from DOM
   canvasContainer = $("#canvas-container");
-  
-  // Try to get dimensions from asciiBox if it exists
-  const asciiBox = select("#asciiBox");
-  if (asciiBox) {
-    numCols = asciiBox.attribute("rows") | 0 || 10;
-    numRows = asciiBox.attribute("cols") | 0 || 10;
-    
-    // Set up event listeners if the elements exist
-    select("#reseedButton").mousePressed(reseed);
-    asciiBox.input(reparseGrid);
-  }
-  
-  // Create canvas with proper dimensions
+
   let canvas = createCanvas(16 * numCols, 16 * numRows);
-  canvas.parent("canvas-container"); // Use the ID with hyphen as in HTML
-  
-  // Set canvas rendering quality
+  canvas.parent("canvas-container");
+
   if (select("canvas") && select("canvas").elt) {
     select("canvas").elt.getContext("2d").imageSmoothingEnabled = false;
   }
+
+  const reseedButton = select("#reseedButton");
+  if (reseedButton) {
+    reseedButton.mousePressed(reseed);
+    console.log("Reseed button handler attached");
+  } else {
+    console.error("Reseed button not found in the DOM");
+  }
   
-  // Set up resize handler
-  $(window).resize(resizeScreen);
-  
-  // Generate initial grid
+  //Generate initial grid
   reseed();
+  
+  //Set up resize event listener
+  $(window).resize(function() {
+    resizeScreen();
+  });
+}
+
+function resizeScreen() {
+  console.log("Resizing...");
+  //Only resize if needed
+  if (canvasContainer.width() !== width || canvasContainer.height() !== height) {
+    resizeCanvas(16 * numCols, 16 * numRows);
+  }
 }
 
 function reseed() {
@@ -55,30 +54,26 @@ function reseed() {
   randomSeed(seed);
   noiseSeed(seed);
   
-  // Update seed report if element exists
+  console.log("Reseeding with seed: " + seed);
+  
+  //Update the seed display if it exists
   const seedReport = select("#seedReport");
   if (seedReport) {
     seedReport.html("seed " + seed);
   }
   
+  //New random room
   regenerateGrid();
 }
 
 function regenerateGrid() {
-  // Generate a new grid
+  //Generate a new grid using the function from p2_solution.js
   currentGrid = generateGrid(numCols, numRows);
   
-  // Update asciiBox if it exists
+  //Update the ASCII box if it exists
   const asciiBox = select("#asciiBox");
   if (asciiBox) {
     asciiBox.value(gridToString(currentGrid));
-  }
-}
-
-function reparseGrid() {
-  const asciiBox = select("#asciiBox");
-  if (asciiBox) {
-    currentGrid = stringToGrid(asciiBox.value());
   }
 }
 
@@ -90,22 +85,9 @@ function gridToString(grid) {
   return rows.join("\n");
 }
 
-function stringToGrid(str) {
-  let grid = [];
-  let lines = str.split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    let row = [];
-    let chars = lines[i].split("");
-    for (let j = 0; j < chars.length; j++) {
-      row.push(chars[j]);
-    }
-    grid.push(row);
-  }
-  return grid;
-}
-
 function draw() {
   randomSeed(seed);
+  
   drawGrid(currentGrid);
 }
 
