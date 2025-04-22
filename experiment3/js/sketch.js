@@ -2,8 +2,8 @@
 let seed = 0;
 let tilesetImage;
 let currentGrid = [];
-let numRows = 20;  //change these if you want the grid to be bigger
-let numCols = 20; 
+let numRows = 30;  //change these if you want the grid to be bigger
+let numCols = 30; 
 let canvasContainer;
 
 function preload() {
