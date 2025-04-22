@@ -1,3 +1,53 @@
+//Name: Myles Andersson
+//Date: 04/21/2025
+
+// Check if location i,j is inside the grid and matches the target character
+function gridCheck(grid, i, j, target) {
+  if (i >= 0 && i < grid.length && j >= 0 && j < grid[0].length) {
+    //checking for wall or door
+    if (target === '#' && grid[i][j] === 'D') {
+      return true;
+    }
+    return grid[i][j] === target;
+  }
+  return false;
+}
+
+//4-bit code representing neighbors
+function gridCode(grid, i, j, target) {
+  let north = gridCheck(grid, i, j-1, target);
+  let south = gridCheck(grid, i, j+1, target);
+  let east = gridCheck(grid, i+1, j, target);
+  let west = gridCheck(grid, i-1, j, target);
+
+  return (north << 0) + (south << 1) + (east << 2) + (west << 3);
+}
+
+//tile with context based on neighboring tiles
+function drawContext(grid, i, j, target, dti, dtj) {
+  const code = gridCode(grid, i, j, target);
+  const [tiOffset, tjOffset] = lookup[code];
+  placeTile(i, j, dti + tiOffset, dtj + tjOffset);
+}
+
+const lookup = [
+  [1,1],
+  [0,1],
+  [1,1],
+  [1,0],
+  [0,1], //next to door 
+  [-2,0], //top right corner
+  [0,0], //top left corner
+  [0,0],
+  [0,1], //next to door
+  [-2,0], //bottom right corner
+  [-2,0], //bottom left corner
+  [0,0],
+  [0,1],
+  [0,0], 
+  [0,0],
+  [0,0], 
+];
 
 function generateGrid(numCols, numRows) {
   let grid = [];
@@ -83,44 +133,100 @@ function generateGrid(numCols, numRows) {
       grid[treeY][treeX] = "T";
     }
   }
+
+  const numhouses = Math.floor(random(3, 8));
+  for (let t = 0; t < numhouses; t++) {
+    const houseX = Math.floor(random(numCols));
+    const houseY = Math.floor(random(numRows));
+    if (grid[houseY][houseX] === '_') {
+      grid[houseY][houseX] = "H";
+    }
+  }
+  const pondSizeX = Math.floor(random(3, 6));
+  const pondSizeY = Math.floor(random(3, 6));
+  const pondX = Math.floor(random(numCols - pondSizeX));
+  const pondY = Math.floor(random(numRows - pondSizeY));
+  
+  for (let i = 0; i < pondSizeY; i++) {
+    for (let j = 0; j < pondSizeX; j++) {
+      //noise to create irregular edges
+      const edgeNoise = noise(i * 0.5, j * 0.5);
+      const distanceFromCenter = Math.abs(i - pondSizeY/2) + Math.abs(j - pondSizeX/2);
+      const maxDistance = (pondSizeX + pondSizeY) / 2;
+      
+      if (distanceFromCenter / maxDistance < 0.7 || edgeNoise > 0.3) {
+        if (pondY + i >= 0 && pondY + i < numRows && 
+            pondX + j >= 0 && pondX + j < numCols && 
+            grid[pondY + i][pondX + j] === '_') {
+          grid[pondY + i][pondX + j] = "W";
+        }
+      }
+    }
+  }
   
   return grid;
 }
   
-function drawGrid(grid) {
+function drawGrid(grid) { //Implementation inspired by Gabe Ahrens 
   background(128);
-  
+
   for(let i = 0; i < grid.length; i++) {
     for(let j = 0; j < grid[i].length; j++) {
-      //kind of a hard coded solution to the problem to get used to it
-      switch(grid[i][j]) {
-        case '_':  //background
-          placeTile(i, j, floor(random(4)), 0);
-          break;
-        case '.':  //floor
-          placeTile(i, j, 1, 10);
-          break;
-        case '#':  //wall
-          placeTile(i, j, 3, 24);
-          break;
-        case 'H':  //tower (not used yet)
-          placeTile(i, j, 30, 0);
-          break;
-        case 'C':  //chest
-          placeTile(i, j, 0, 30);
-          break;
-        case 'T':  //tree
-          placeTile(i, j, 14, 0);
-          break;
-        case 'W':  //water (not used yet)
-          placeTile(i, j, 8, 5);
-          break;
-        case 'D':  //door
-          placeTile(i, j, 5, 25);
-          break;
-        default:   //any other character, use a distinct tile
-          placeTile(i, j, (grid[i][j].charCodeAt(0) % 8), 3);
-          break;
+      // plains
+      if (gridCheck(grid, i, j, "_")) {
+        placeTile(i, j, floor(random(4)), 0);
+      }
+
+      //door
+      else if (gridCheck(grid, i, j, "D")) {
+        drawContext(grid, i, j, 'D', 5, 25);
+      }
+    
+      // walls
+      else if (gridCheck(grid, i, j, "#")) {
+        placeTile(i, j, floor(random(4)), 10);
+        drawContext(grid, i, j, '#', 5, 21);
+      }
+    
+      // dungeon floor
+      else if (gridCheck(grid, i, j, ".")) {
+        placeTile(i, j, floor(random(4)), 10);
+        
+        let t = millis() / 1000;
+        let fungusChance = noise(i * 0.3, j * 0.3, t * 0.2);
+        if (fungusChance > 0.6) {
+          placeTile(i, j, 1, 16);
+        }
+      }
+      
+      // trees
+      else if (gridCheck(grid, i, j, "T")) {
+        placeTile(i, j, floor(random(4)), 0);
+        placeTile(i, j, 14, 0);
+      }
+
+      // chest
+      else if (gridCheck(grid, i, j, "C")) {
+        placeTile(i, j, 0, 30);
+      }
+      
+      // houses
+      else if (gridCheck(grid, i, j, "H")) {
+        placeTile(i, j, random(1), 3);
+        placeTile(i, j, 26, 3);
+      }
+
+      //water/pond
+      else if (gridCheck(grid, i, j, "W")) {
+        placeTile(i, j, floor(random(4)), 13);
+        
+        //water animation effect
+        let t = millis() / 800;
+        let waveChance = noise(i * 0.5, j * 0.5, t * 0.5);
+        if (waveChance > 0.7) {
+          //bubbles/ripples occasionally
+          placeTile(i, j, 2, 13);
+        }
       }
     }
   }

@@ -2,8 +2,8 @@
 let seed = 0;
 let tilesetImage;
 let currentGrid = [];
-let numRows = 10;  //change these if you want the grid to be bigger
-let numCols = 10; 
+let numRows = 20;  //change these if you want the grid to be bigger
+let numCols = 20; 
 let canvasContainer;
 
 function preload() {
@@ -50,7 +50,7 @@ function resizeScreen() {
 }
 
 function reseed() {
-  seed = (seed | 0) + 1109;
+  seed = (seed | 0) + 1370;
   randomSeed(seed);
   noiseSeed(seed);
   
