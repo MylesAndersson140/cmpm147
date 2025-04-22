@@ -1,5 +1,6 @@
 //Name: Myles Andersson
 //Date: 04/21/2025
+//Asset attribution: Created by Kacper Woźniak’s found here: https://thkaspar.itch.io/micro-tileset-overworld-dungeon 
 
 // Check if location i,j is inside the grid and matches the target character, inspired from professors slides (slide 9)
 function gridCheck(grid, i, j, target) {
@@ -222,7 +223,7 @@ function drawGrid(grid) { //Implementation inspired by Gabe Ahrens
         placeTile(i, j, floor(random(4)), 13);
         
         //water animation effect
-        let t = millis() / 800;
+        let t = millis() / 200;
         let waveChance = noise(i * 0.5, j * 0.5, t * 0.5);
         if (waveChance > 0.7) {
           //bubbles/ripples occasionally
