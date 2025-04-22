@@ -1,7 +1,7 @@
 //Name: Myles Andersson
 //Date: 04/21/2025
 
-// Check if location i,j is inside the grid and matches the target character
+// Check if location i,j is inside the grid and matches the target character, inspired from professors slides (slide 9)
 function gridCheck(grid, i, j, target) {
   if (i >= 0 && i < grid.length && j >= 0 && j < grid[0].length) {
     //checking for wall or door
@@ -13,7 +13,7 @@ function gridCheck(grid, i, j, target) {
   return false;
 }
 
-//4-bit code representing neighbors
+//4-bit code representing neighbors, inspired from professors slides (slide 9)
 function gridCode(grid, i, j, target) {
   let north = gridCheck(grid, i, j-1, target);
   let south = gridCheck(grid, i, j+1, target);
@@ -23,13 +23,14 @@ function gridCode(grid, i, j, target) {
   return (north << 0) + (south << 1) + (east << 2) + (west << 3);
 }
 
-//tile with context based on neighboring tiles
+//tile with context based on neighboring tiles, inspired from professors slides (slide 9)
 function drawContext(grid, i, j, target, dti, dtj) {
   const code = gridCode(grid, i, j, target);
   const [tiOffset, tjOffset] = lookup[code];
   placeTile(i, j, dti + tiOffset, dtj + tjOffset);
 }
 
+//inspired from professors slides (slide 9)
 const lookup = [
   [1,1],
   [0,1],
