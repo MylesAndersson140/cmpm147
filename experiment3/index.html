@@ -2,7 +2,7 @@
 <html>
 <head>
 	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment X - Subject/Topic</title>
+	<title>Experiment 03 - Alternate Worlds</title>
 
 	<!-- Use UTF character set, a good idea with any webpage -->
 	<meta charset="UTF-8" />
@@ -32,7 +32,7 @@
 	<!-- Style this page by changing the CSS in ../css/site.css or css/experiment.css -->
 	<main id="content">
 		<section>
-			<h1>Experiment X - Subject/Topic</h1>
+			<h1>Experiment 03 - Alternate Worlds</h1>
 
 			<div class="minor-section">
 				<div id="canvas-container">
@@ -49,17 +49,23 @@
 
 			<div class="minor-section">
 				<h2>Description</h2>
-				<p>What are you trying to accomplish with this experiment?</p>
+				<p>Dungeons are the cornerstone of rougelike gameplay whether it be above or below ground. I used dungeons as my inspiration for today and created an everchanging landscape with trees, houses, ponds, and a nice field. As you increase the seed you'll see the shape of the dungeon change, the trees, houses, ponds all change locations. Beyond that you'll notice a creeping fungal infestation inside the dungeon, noted by the red and gray tiles. Additonally, it looks like some fish may be active in the pond with all those bubbles changing!</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Technical</h2>
-				<p>Describe in detail what you did technically and how it works?</p>
+				<p>Autotiling and Life!</p>
+				<p>Going step by step here are some of the most interesting portions of this assignment:</p>
+
+				<p>The changing of the walls to compliment the different dungeon sizes was thanks to a lookup array that assisted me in finding complimentary tiles with context information based on neighboring tiles. After recieving this information, I used a function that offset the current tile to create a smooth transtition from the tile I just placed. This was all possible due to assigning a 4-bit code to every tile that I then assessed before placing down the next tile to ensure smooth transitions.</p>
+
+				<p>Then, to create the "living" portion of the level design, I utilized noise functions to change the tiles on a whim. This is how the funal infestations spreads and how the bubbles in the pond change.</p>
+			</div>
 			</div>
 
 			<div class="minor-section">
 				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
+				<p>In the end, I felt challenged by the process but I’m coming out of it with a better understanding of generative design. I feel very satisfied with my final result and while I could have added more aspects that would elevate it further, while the amount of effort I put in may not show, I am happy with the result.</p>
 			</div>
 		</section>
 		<nav id="links" class="minor-section">
