@@ -2,7 +2,7 @@
 <html>
 <head>
 	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment X - Subject/Topic</title>
+	<title>Experiment 4 - Infinite Worlds</title>
 
 	<!-- Use UTF character set, a good idea with any webpage -->
 	<meta charset="UTF-8" />
@@ -26,13 +26,14 @@
 	<script type="text/javascript" src="./js/project.js" DEFER></script>
 	<!-- Use me for a p5.js project -->
 	<script type="text/javascript" src="./js/sketch.js" DEFER></script>
+	<script type="text/javascript" src="./js/xxhash.min.js" DEFER></script>
 </head>
 <body>
 	<!-- Style this page by changing the CSS in ../css/site.css or css/experiment.css -->
 	<main id="content">
 		<section>
 
-			<h1>Experiment X - Subject/Topic</h1>
+			<h1>Experiment 4 - Infinite Worlds</h1>
 
 			<div class="minor-section">
 				<div id="canvas-container">
@@ -41,6 +42,12 @@
                 <div class="fullscreen-box">
                     <button id="toggle-fullscreen">Fullscreen</button>
                 </div>
+				<div id="world-key-controls">
+					<label for="world-key-input">World Key:
+						<input type="text" id="world-key-input" value="beach sunset">
+					</label>
+					<p>Arrow keys to scroll left and right. Clicking on the water and sand changes the tiles.</p>
+				</div>
 			</div>
 
 			<div class="minor-section">
