@@ -1,4 +1,4 @@
-/* style.css */
+/* style.css with help from Prof Modes*/
 
 /* Set the canvas element to be the full size of the container */
 canvas {
@@ -17,3 +17,111 @@ body {
     width: 100%;
     height: 600px;
 }
+
+.results-top, .controls {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.results-top .image-container p {
+  text-align: center;
+}
+
+.results-top>* {
+  flex: 1;
+}
+
+.results-bottom p {
+  display: flex;
+  gap: 10px;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.results-bottom p img {
+  width: 100px;
+  height: auto;
+}
+
+/* .results-bottom img {
+  width: 150px;
+  height: auto;
+} */
+
+.caption {
+  text-align: center;
+  font-size: 0.8em;
+}
+
+.evolution-container {
+    margin-top: 20px;
+    width: 100%;
+  }
+  
+  .evolution-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .playback-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .evolution-visualization {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 10px;
+  }
+  
+  .evolution-canvas-container {
+    flex: 2;
+  }
+  
+  #evolution-canvas {
+    width: 100%;
+    height: 300px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+  }
+  
+  .evolution-stats {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #auto-anneal {
+    margin-left: 10px;
+    background-color: #3a3838;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  #auto-anneal:hover {
+    background-color: #171817;
+  }
+  
+  #auto-anneal.annealing {
+    background-color: #f44336;
+  }
+  
+  #auto-anneal:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
