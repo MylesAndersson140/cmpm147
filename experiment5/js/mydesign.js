@@ -89,7 +89,6 @@ function getInspirations() {
       fill(box.fill, 128);
       rect(box.x, box.y, box.w, box.h);
     }
-
     for (let circle of design.circles) {
         fill(circle.fill, circle.alpha);
         ellipse(circle.x, circle.y, circle.radius*2);
