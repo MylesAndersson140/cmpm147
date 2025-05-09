@@ -259,8 +259,12 @@ function playbackEvolution() {
   
   const img = document.createElement('img');
   img.src = evolutionCanvas.canvas.toDataURL();
-  img.style.width = '100%';
+  img.style.maxWidth = '100%';
+  img.style.maxHeight = '100%';
+  img.style.width = 'auto';
   img.style.height = 'auto';
+  img.style.display = 'block';     
+  img.style.margin = '0 auto'; 
   evolutionCanvasElement.appendChild(img);
   
   document.getElementById("current-iteration").textContent = histEntry.iteration;
