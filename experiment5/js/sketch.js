@@ -1,4 +1,4 @@
-// sketch.js provided by Prof. Wes Modes - purpose and description here
+// sketch.js provided by Prof. Wes Modes - editted by Myles Andersson
 // Author: Myles Andersson
 // Date: 05/07/2025
 
