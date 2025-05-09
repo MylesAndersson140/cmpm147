@@ -107,17 +107,9 @@
 			<div class="minor-section">
 				<h2>Technical</h2>
                 <ol>
-                    <li>This project integrates inspiring images that are selectable from the drop-down on the display page. (This could be three distinct images or one image with three different sets of clues that cause the generator to interpret it in a different way.)</li>
-                    <li>The design object is initialized in inspiration-specific ways. Selecting different inspirations should lead to different behaviors of initDesign.</li>
-                    <li>The design is rendered in a way that can possibly produce results that feel related to the inspiring images. (The 30-second annealing trick should produce images that resemble the inspiring image if we squint.)</li>
-                    <li>The mutation process makes incremental changes to your design. The rate parameter should be implemented in a way that allows the user to almost stop exploration by sliding the rate down to 1%. Your generator must respond to the mutation rate slider.</li>
+                    <li>This project integrates inspiring images that are selectable from the drop-down on the display page.</li>
+                    <p>This program parses an image and attempts to recreate it using different shapes, such as: rectangles, circles, and triangles. It undergoes many evolutions in response to mutation rates which changes how the different shapes look depending on what a previous render got as a score of resemblance. The "Auto Anneal" button allows the user to sit back and see what happens as the mutation rate slowly goes down, if you squint you will see a resemblance of the original image. Additionally, the user is able to see this evolution first hand by clicking the "show evolution" button and be presented with the ability to start/pause and increase/decrease the speed of the animation.</p>
                 </ol>
-			</div>
-
-			<div class="minor-section">
-				<h2>Annealing</h2>
-                <p>The most interesting results from this kind of evolutionary generator are often achieved by continually adjusting the mutation rate. Set the slider to 100%, reset the generator, and then slowly drag the slider down to 1% over the period of about 30 seconds. This allows the generator to make large design changes at the start while allowing it to focus on finely details towards the end. This is best done by hand while watching the outputs improve because you can use your human judgment to decide when the generator needs to be making bigger or smaller changes to keep making progress.
-                </p>
 			</div>
 
 			<div class="minor-section">

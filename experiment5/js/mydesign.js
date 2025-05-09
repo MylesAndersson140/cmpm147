@@ -8,22 +8,22 @@ function getInspirations() {
       {
         name: "Throne and Liberty with my boyfriend", 
         assetUrl: "assets/TNL.png",
-        credit: "Playing Throne and Liberty, taken by myself"
+        credit: "Playing Throne and Liberty, taken by me"
       },
       {
         name: "On gliders on Archeage with my boyfriend", 
         assetUrl: "assets/Archeage skyemp.png",
-        credit: "Playing Archeage, taken by myself"
+        credit: "Playing Archeage, taken by me"
       },
       {
         name: "Playing Archeage with my boyfriend", 
         assetUrl: "assets/archeage2.png",
-        credit: "Playing Archeage, taken by myself"
+        credit: "Playing Archeage, taken by me"
       },
       {
         name: "Playing Enshrouded with my boyfriend", 
         assetUrl: "assets/enshrouded.png",
-        credit: "Playing Enshrouded, taken by myself"
+        credit: "Playing Enshrouded, taken by me"
       },
     ];
   }
