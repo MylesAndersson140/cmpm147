@@ -1,9 +1,11 @@
 /* style.css */
 
 /* Set the canvas element to be the full size of the container */
+
 canvas {
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
 /* Center the canvas element on the page */
@@ -11,9 +13,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
 }
 
 #canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 600px;
 }
