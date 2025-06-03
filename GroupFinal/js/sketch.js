@@ -486,7 +486,6 @@ function keyPressed() {
   if (key === "ArrowUp"){
     moveForward = true;
   }
-
 }
 
 function keyReleased() {
