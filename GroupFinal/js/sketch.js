@@ -17,14 +17,28 @@ let grassBlades = [];  // grass blades
 let hunger = 100; // Full hunger
 let maxHunger = 100;
 
+// L-System Plants
+let LSBushes = [];
+let bushLS;
+
+let yAxis;
+
 function setup() {
   console.log("setup called");
   let canvas = createCanvas(600, 400, WEBGL);
   canvas.parent('canvas-container');
   noStroke();
+  yAxis = createVector(0, -1, 0);
+  iniLSPlants();
 
   // Generate mushrooms for initial player tile
   generateMushroomsForTile(playerTileX, playerTileZ);
+}
+
+function iniLSPlants()
+{
+  bushLS = new LSystem();
+  bushLS.simulate(2);
 }
 
 function isTileInFront(i, j) {
@@ -71,12 +85,103 @@ function getFloorColor(i, j) {
   return color(greenValue * 0.5, greenValue, greenValue * 0.5);
 }
 
+// Sunset gradient background
+function drawSunsetBackground() {
+  push();
+  
+  // Draw a large skybox far in the distance
+  translate(playerX * tileSize, -200, playerZ * tileSize);
+  
+  // Define sunset colors
+  let horizonColor = color(255, 160, 100);  // Orange-red at horizon
+  let midSkyColor = color(240, 200, 150);  // Lighter orange above
+  let topSkyColor = color(180, 200, 240);  // Light blue at top
+  let bottomColor = color(220, 140, 100);   // Softer orange-brown below horizon
+  
+  // Draw gradient quads from bottom to top
+  let segments = 20;
+  let skySize = 2000; // Large enough to cover visible area
+  
+  for (let i = 0; i < segments; i++) {
+    let y1 = map(i, 0, segments, 375, -400);
+    let y2 = map(i + 1, 0, segments, 375, -400);
+    
+    let t1 = map(i, 0, segments, 0, 1);
+    let t2 = map(i + 1, 0, segments, 0, 1);
+    
+    // Create color interpolation based on vertical position
+    let c1, c2;
+    
+    if (t1 < 0.3) {
+      // Lower part: blend from bottom color to horizon
+      c1 = lerpColor(bottomColor, horizonColor, t1 / 0.3);
+    } else if (t1 < 0.6) {
+      // Middle part: blend from horizon to mid-sky
+      c1 = lerpColor(horizonColor, midSkyColor, (t1 - 0.3) / 0.3);
+    } else {
+      // Upper part: blend from mid-sky to top
+      c1 = lerpColor(midSkyColor, topSkyColor, (t1 - 0.6) / 0.4);
+    }
+    
+    if (t2 < 0.3) {
+      c2 = lerpColor(bottomColor, horizonColor, t2 / 0.3);
+    } else if (t2 < 0.6) {
+      c2 = lerpColor(horizonColor, midSkyColor, (t2 - 0.3) / 0.3);
+    } else {
+      c2 = lerpColor(midSkyColor, topSkyColor, (t2 - 0.6) / 0.4);
+    }
+    
+    // Draw gradient strip as a large rectangle in world space
+    noStroke();
+    beginShape();
+    fill(c1);
+    vertex(-skySize, y1, -skySize);
+    vertex(skySize, y1, -skySize);
+    fill(c2);
+    vertex(skySize, y2, -skySize);
+    vertex(-skySize, y2, -skySize);
+    endShape(CLOSE);
+    
+    // Draw same strip on other sides to create skybox effect
+    beginShape();
+    fill(c1);
+    vertex(-skySize, y1, skySize);
+    vertex(skySize, y1, skySize);
+    fill(c2);
+    vertex(skySize, y2, skySize);
+    vertex(-skySize, y2, skySize);
+    endShape(CLOSE);
+    
+    beginShape();
+    fill(c1);
+    vertex(-skySize, y1, -skySize);
+    vertex(-skySize, y1, skySize);
+    fill(c2);
+    vertex(-skySize, y2, skySize);
+    vertex(-skySize, y2, -skySize);
+    endShape(CLOSE);
+    
+    beginShape();
+    fill(c1);
+    vertex(skySize, y1, -skySize);
+    vertex(skySize, y1, skySize);
+    fill(c2);
+    vertex(skySize, y2, skySize);
+    vertex(skySize, y2, -skySize);
+    endShape(CLOSE);
+  }
+  
+  pop();
+}
+
 function draw() {
-  background(135, 206, 235); // sky blue
+  //background(135, 206, 235);//failsafe
+
+  drawSunsetBackground();
 
   // Lighting
-  ambientLight(180);
-  directionalLight(255, 255, 255, 0.2, -1, 0.2);
+  ambientLight(120, 80, 60);
+  directionalLight(255, 180, 120, 0.2, -1, 0.2);
 
   // Hunger depletes over time
   hunger -= 0.01 * (deltaTime / 16.67);
@@ -124,6 +229,7 @@ function draw() {
   highMushrooms = [];
   poisonMushrooms = [];
   grassBlades = [];
+  LSBushes = [];
 
   // Draw tiles around players
   let range = 8;
@@ -132,14 +238,14 @@ function draw() {
   let startZ = floor(playerZ - range);
   let endZ = floor(playerZ + range);
 
-  /*for (let i = startX; i < endX; i++) {
-    for (let j = startZ; j < endZ; j++) {
-      if (isTileInFront(i, j)) {
-        drawTile(i, j);
+    /*for (let i = startX; i < endX; i++) {
+      for (let j = startZ; j < endZ; j++) {
+        if (isTileInFront(i, j)) {
+          drawTile(i, j);
+        }
       }
-    }
-  }*/
-
+    }*/
+  
   for (let i = startX; i < endX; i++) {
     for (let j = startZ; j < endZ; j++) {
       if (isTileInFront(i, j)) {
@@ -199,6 +305,16 @@ function draw() {
     pop();
   }
 
+  // Draw LS Bushes
+  for (let b of LSBushes) {
+    push();
+    translate(b.x, -2, b.z);
+    rotate(PI/2, yAxis);
+    if (b.flip == 1)
+      scale(-1, 1);
+    bushLS.render();
+    pop();
+  }
 }
 
 function drawTile(i, j) {
@@ -211,10 +327,10 @@ function drawTile(i, j) {
   fill(getFloorColor(i, j));
   box(tileSize, 4, tileSize);
   
-  /*// Place objects randomly using seed
+  // Place objects randomly using consistent seed
   randomSeed(i * 9999 + j * 1234);
   
-  // Place mushrooms
+  /*// Place mushrooms
   for (let n = 0; n < 3; n++) {
     if (random() < 0.03) {
       let sideOffset = random() * tileSize - tileSize / 2; 
@@ -232,15 +348,26 @@ function drawTile(i, j) {
   
   // Place grass blades (more frequent than mushrooms)
   for (let n = 0; n < 50; n++) {
-    if (random() < 0.5) {
+    if (random() < 0.3) {
       let offsetX = random() * tileSize - tileSize / 2;
       let offsetZ = random() * tileSize - tileSize / 2;
       grassBlades.push({ x: i * tileSize + offsetX, z: j * tileSize + offsetZ });
     }
   }*/
   
+  // Place bush
+  if (random() < 0.1 && (abs(playerZ - (j * tileSize)) > 35 && abs(playerZ - (j * tileSize)) < 50))
+  {
+    //let offsetX = random() * tileSize - tileSize / 2;
+    //let offsetZ = random() * tileSize - tileSize / 2;
+    let offsetX = 0, offsetZ = 0;
+    LSBushes.push( { x: i * tileSize + offsetX, z: j * tileSize + offsetZ, flip: floor(random(0, 2)) } );
+  }
+  
+
   pop();
 }
+
 
 // Generate mushrooms and grass for a tile and store them
 function generateMushroomsForTile(i, j) {
@@ -282,6 +409,7 @@ function generateMushroomsForTile(i, j) {
   };
 }
 
+// Hunger bar
 function displayHungerBar() {
   resetMatrix();
   camera();  // Reset to default orthographic camera
@@ -324,51 +452,3 @@ function keyReleased() {
     moveForward = false;
   }
 }
-
-/*function mousePressed() {
-  console.log("clicked");
-  let mouse3D = screenPositionToWorld(mouseX, mouseY);
-  
-  if (mouse3D === null) {
-    // Ray doesn't intersect ground, so no mushrooms to click
-    return; 
-  }
-  
-  let range = 8;
-  for (let i = floor(playerX - range); i < floor(playerX + range); i++) {
-    for (let j = floor(playerZ - range); j < floor(playerZ + range); j++) {
-      let key = `${i},${j}`;
-      let tileData = mushroomsByTile[key];
-      if (tileData) {
-        removeClickedMushroom(tileData.regMushrooms, mouse3D);
-        removeClickedMushroom(tileData.highMushrooms, mouse3D);
-        removeClickedMushroom(tileData.poisonMushrooms, mouse3D);
-      }
-    }
-  }
-}
-
-
-function removeClickedMushroom(mushroomArray, mouse3D) {
-  if (!mouse3D) return;  // prevent errors if mouse3D is null or undefined
-
-  for (let i = mushroomArray.length - 1; i >= 0; i--) {
-    let m = mushroomArray[i];
-    let d = dist(mouse3D.x, mouse3D.z, m.x, m.z);
-    if (d < 50) {
-      mushroomArray.splice(i, 1);
-      break;
-    }
-  }
-}
-
-function screenPositionToWorld(x, y) {
-  // Assuming the camera looks straight down and world units map 1:1 with screen
-  let camX = playerX * tileSize;
-  let camZ = playerZ * tileSize;
-
-  let worldX = camX + (x - width / 2);
-  let worldZ = camZ + (y - height / 2);
-
-  return { x: worldX, z: worldZ };
-}*/
