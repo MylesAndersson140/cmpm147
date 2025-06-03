@@ -9,11 +9,25 @@ let poisonMushrooms = [];  // purple mushrooms
 let highMushrooms = [];  // red mushrooms
 let grassBlades = [];  // grass blades
 
+// L-System Plants
+let LSBushes = [];
+let bushLS;
+
+let yAxis;
+
 function setup() {
   console.log("setup called");
   let canvas = createCanvas(600, 400, WEBGL);
   canvas.parent('canvas-container');
   noStroke();
+  yAxis = createVector(0, -1, 0);
+  iniLSPlants();
+}
+
+function iniLSPlants()
+{
+  bushLS = new LSystem();
+  bushLS.simulate(2);
 }
 
 function isTileInFront(i, j) {
@@ -89,6 +103,7 @@ function draw() {
   highMushrooms = [];
   poisonMushrooms = [];
   grassBlades = [];
+  LSBushes = [];
 
   // Draw tiles around players
   let range = 8;
@@ -137,6 +152,17 @@ function draw() {
     box(2, 8, 0.5);
     pop();
   }
+
+  // Draw LS Bushes
+  for (let b of LSBushes) {
+    push();
+    translate(b.x, -2, b.z);
+    rotate(PI/2, yAxis);
+    if (b.flip == 1)
+      scale(-1, 1);
+    bushLS.render();
+    pop();
+  }
 }
 
 function drawTile(i, j) {
@@ -177,6 +203,16 @@ function drawTile(i, j) {
     }
   }
   
+  // Place bush
+  if (random() < 0.1 && (abs(playerZ - (j * tileSize)) > 35 && abs(playerZ - (j * tileSize)) < 50))
+  {
+    //let offsetX = random() * tileSize - tileSize / 2;
+    //let offsetZ = random() * tileSize - tileSize / 2;
+    let offsetX = 0, offsetZ = 0;
+    LSBushes.push( { x: i * tileSize + offsetX, z: j * tileSize + offsetZ, flip: floor(random(0, 2)) } );
+  }
+  
+
   pop();
 }
 

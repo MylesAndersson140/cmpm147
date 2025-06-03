@@ -1,5 +1,5 @@
-let lineLength = 75;
-let theta = 10;
+let lineLength = 4;
+let theta = 22.5;
 
 let ls;
 let ls2;
@@ -15,13 +15,12 @@ class LSystem
 				this.axiom = "F";
 			
 				// rules for replacing characters
-				//this.ruleF = "F[+F][-F]";
-				this.ruleF = "F[++FC][--FC]";
-				//this.ruleF = "F[+F--F]";
-				//this.ruleF = "F[+F-F]"
-				//this.ruleF = "F[C]-F"
+				//this.ruleF = "FF[+FC][-FC]";
+				this.ruleF = "FF+[+F-FC]-[-F+FC]";
 			
 				this.ruleC = "C";
+			
+				this.ruleX = "[-FX]+FX";
 			
 				this.rulePlus = "+";
 			
@@ -71,6 +70,10 @@ class LSystem
 										newProduction = newProduction + this.ruleC;
 										break;
 								
+                                case 'X': 
+										newProduction = newProduction + this.ruleX;
+										break;
+
 								case '-':
 										newProduction = newProduction + this.ruleMinus;
 										break;
@@ -88,7 +91,7 @@ class LSystem
 										break;
 								
 								default:
-										print("Error in iterate: switch statement default case");
+										print("Error in L-System iterate: switch statement default case");
 										break;
 						}	
 				}
@@ -99,47 +102,55 @@ class LSystem
 	
 		render()
 		{
-				for (let i = 0; i < this.production.length; i++)
-				{
-						let step = this.production.charAt(i);		
-						
-						let val = i * 255/this.production.length;
-						stroke(val, val, val);
-						fill(0, 255 - val, 0);
-					
-						switch (step)
-						{
-								case 'F':
-										line(0, 0, 0, -lineLength);
-										translate(0, -lineLength);
-										break;
-								
-								case 'C':
-										noStroke();
-										circle(0, 0, 30);
-										break;
-								
-								case '-':
-										rotate(-theta);
-										break;
-								
-								case '+':
-										rotate(theta);
-										break;
-								
-								case '[':
-										push();
-										break;
-								
-								case ']':
-										pop();
-										break;
-								
-								default:
-										print("Error in render: switch statement default case");
-										break;
-						}
-				}
+			angleMode(DEGREES);
+            theta += sin(millis()/10) * 0.05;	
+            for (let i = 0; i < this.production.length; i++)
+            {
+                    let step = this.production.charAt(i);		
+                    
+                    let val = i * 255/this.production.length;
+                    stroke('rgb(70,83,8)');
+                    //strokeWeight(1);
+                    fill(0, 255 - val, 0);
+                
+                    switch (step)
+                    {
+                            case 'F':
+                                    line(0, 0, 0, -lineLength);
+                                    translate(0, -lineLength);
+                                    break;
+                            
+                            case 'C':
+                                    noStroke();
+                                    fill('rgb(70,138,33)');
+                                    ellipse(0, 0, 5, 10);
+                                    break;
+                                    
+                            case 'X':
+                                    break;
+                            
+                            case '-':
+                                    rotate(-theta);
+                                    break;
+                            
+                            case '+':
+                                    rotate(theta);
+                                    break;
+                            
+                            case '[':
+                                    push();
+                                    break;
+                            
+                            case ']':
+                                    pop();
+                                    break;
+                            
+                            default:
+                                    print("Error in render: switch statement default case");
+                                    break;
+                    }
+            }
+            angleMode(RADIANS);
 		}
 }
 
