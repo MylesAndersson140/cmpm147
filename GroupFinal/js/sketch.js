@@ -4,10 +4,18 @@ let playerZ = 0;
 let angle = 0; // Facing direction in radians
 let moveForward = false;
 
+let playerTileX = 0;
+let playerTileZ = 0;
+
+let mushroomsByTile = {};  // Store mushrooms by tile coords
+
 let regMushrooms = [];  // brown mushrooms
 let poisonMushrooms = [];  // purple mushrooms
 let highMushrooms = [];  // red mushrooms
 let grassBlades = [];  // grass blades
+
+let hunger = 100; // Full hunger
+let maxHunger = 100;
 
 // L-System Plants
 let LSBushes = [];
@@ -22,6 +30,9 @@ function setup() {
   noStroke();
   yAxis = createVector(0, -1, 0);
   iniLSPlants();
+
+  // Generate mushrooms for initial player tile
+  generateMushroomsForTile(playerTileX, playerTileZ);
 }
 
 function iniLSPlants()
@@ -81,11 +92,35 @@ function draw() {
   ambientLight(180);
   directionalLight(255, 255, 255, 0.2, -1, 0.2);
 
+  // Hunger depletes over time
+  hunger -= 0.01 * (deltaTime / 16.67);
+  hunger = constrain(hunger, 0, maxHunger);
+
   // Moving forward
   if (moveForward) {
     playerX += cos(angle) * 0.1;
     playerZ += sin(angle) * 0.1;
+
+    let currentTileX = floor(playerX);
+    let currentTileZ = floor(playerZ);
+
+    // deplete hunger when player moves
+    hunger -= 0.05;
+    hunger = constrain(hunger, 0, maxHunger);
+
+    // If entered new tile, generate mushrooms if not done yet
+    if (currentTileX !== playerTileX || currentTileZ !== playerTileZ) {
+      playerTileX = currentTileX;
+      playerTileZ = currentTileZ;
+
+      if (!mushroomsByTile[`${playerTileX},${playerTileZ}`]) {
+        generateMushroomsForTile(playerTileX, playerTileZ);
+      }
+    }
   }
+
+  // Show hunger bar
+  displayHungerBar();
 
   // Camera setup
   let camHeight = 30; // Eye-level height
@@ -112,10 +147,36 @@ function draw() {
   let startZ = floor(playerZ - range);
   let endZ = floor(playerZ + range);
 
+    /*for (let i = startX; i < endX; i++) {
+      for (let j = startZ; j < endZ; j++) {
+        if (isTileInFront(i, j)) {
+          drawTile(i, j);
+        }
+      }
+    }*/
+  
   for (let i = startX; i < endX; i++) {
     for (let j = startZ; j < endZ; j++) {
       if (isTileInFront(i, j)) {
         drawTile(i, j);
+
+        // Add mushrooms and grass from stored data for this tile
+        let tileData = mushroomsByTile[`${i},${j}`];
+        if (tileData) {
+          regMushrooms.push(...tileData.regMushrooms);
+          highMushrooms.push(...tileData.highMushrooms);
+          poisonMushrooms.push(...tileData.poisonMushrooms);
+          grassBlades.push(...tileData.grassBlades);
+        } 
+        else {
+          // Optionally generate mushrooms for tiles you haven't seen yet
+          generateMushroomsForTile(i, j);
+          tileData = mushroomsByTile[`${i},${j}`];
+          regMushrooms.push(...tileData.regMushrooms);
+          highMushrooms.push(...tileData.highMushrooms);
+          poisonMushrooms.push(...tileData.poisonMushrooms);
+          grassBlades.push(...tileData.grassBlades);
+        }
       }
     }
   }
@@ -178,7 +239,7 @@ function drawTile(i, j) {
   // Place objects randomly using consistent seed
   randomSeed(i * 9999 + j * 1234);
   
-  // Place mushrooms
+  /*// Place mushrooms
   for (let n = 0; n < 3; n++) {
     if (random() < 0.03) {
       let sideOffset = random() * tileSize - tileSize / 2; 
@@ -201,7 +262,7 @@ function drawTile(i, j) {
       let offsetZ = random() * tileSize - tileSize / 2;
       grassBlades.push({ x: i * tileSize + offsetX, z: j * tileSize + offsetZ });
     }
-  }
+  }*/
   
   // Place bush
   if (random() < 0.1 && (abs(playerZ - (j * tileSize)) > 35 && abs(playerZ - (j * tileSize)) < 50))
@@ -212,6 +273,78 @@ function drawTile(i, j) {
     LSBushes.push( { x: i * tileSize + offsetX, z: j * tileSize + offsetZ, flip: floor(random(0, 2)) } );
   }
   
+
+  pop();
+}
+
+
+// Generate mushrooms and grass for a tile and store them
+function generateMushroomsForTile(i, j) {
+  randomSeed(i * 9999 + j * 1234);
+  
+  let regM = [];
+  let highM = [];
+  let poisonM = [];
+  let grass = [];
+
+  for (let n = 0; n < 3; n++) {
+    if (random() < 0.03) {
+      let sideOffset = random() * tileSize - tileSize / 2;
+      regM.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
+    }
+    if (random() < 0.07) {
+      let sideOffset = random() < 0.5 ? -tileSize / 2 : tileSize / 2;
+      highM.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
+    }
+    if (random() < 0.05) {
+      let sideOffset = random() < 0.5 ? -tileSize / 2 : tileSize / 2;
+      poisonM.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
+    }
+  }
+
+  for (let n = 0; n < 50; n++) {
+    if (random() < 0.5) {
+      let offsetX = random() * tileSize - tileSize / 2;
+      let offsetZ = random() * tileSize - tileSize / 2;
+      grass.push({ x: i * tileSize + offsetX, z: j * tileSize + offsetZ });
+    }
+  }
+
+  mushroomsByTile[`${i},${j}`] = {
+    regMushrooms: regM,
+    highMushrooms: highM,
+    poisonMushrooms: poisonM,
+    grassBlades: grass
+  };
+}
+
+// Hunger bar
+function displayHungerBar() {
+  resetMatrix();
+  camera();  // Reset to default orthographic camera
+  noLights();
+  push();
+  translate(-width / 2, -height / 2);  // Top-left corner as origin
+
+  // position and size
+  let barWidth = 200;
+  let barHeight = 20;
+  let x = 20;
+  let y = 20;
+
+  // Background of the hunger bar
+  fill(100);
+  rect(x, y, barWidth, barHeight);
+
+  // current hunger
+  let filledWidth = map(hunger, 0, maxHunger, 0, barWidth);
+  fill(255, 0, 0);
+  rect(x, y, filledWidth, barHeight);
+
+  // Border
+  noFill();
+  stroke(0);
+  rect(x, y, barWidth, barHeight);
 
   pop();
 }
