@@ -483,10 +483,17 @@ function keyPressed() {
   if (key === 'w') {
     moveForward = true;
   }
+  if (key === "ArrowUp"){
+    moveForward = true;
+  }
+
 }
 
 function keyReleased() {
   if (key === 'w') {
+    moveForward = false;
+  }
+  if (key === "ArrowUp") {
     moveForward = false;
   }
 }
