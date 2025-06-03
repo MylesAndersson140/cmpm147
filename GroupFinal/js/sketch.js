@@ -252,7 +252,7 @@ function drawTile(i, j) {
   if (isPathTile(i, j)) {
     // ─── PATH TILE: Draw brown “dirt” and do NOT spawn any grass/bush here ───
     fill(139, 69, 19); // brown dirt color (R=139, G=69, B=19)
-    box(tileSize, 4, tileSize);w
+    box(tileSize, 4, tileSize);
   }
   else {
   // ─── 2B: Normal grass tile ───
