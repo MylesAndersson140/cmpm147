@@ -85,12 +85,103 @@ function getFloorColor(i, j) {
   return color(greenValue * 0.5, greenValue, greenValue * 0.5);
 }
 
+// Sunset gradient background
+function drawSunsetBackground() {
+  push();
+  
+  // Draw a large skybox far in the distance
+  translate(playerX * tileSize, -200, playerZ * tileSize);
+  
+  // Define sunset colors
+  let horizonColor = color(255, 160, 100);  // Orange-red at horizon
+  let midSkyColor = color(240, 200, 150);  // Lighter orange above
+  let topSkyColor = color(180, 200, 240);  // Light blue at top
+  let bottomColor = color(220, 140, 100);   // Softer orange-brown below horizon
+  
+  // Draw gradient quads from bottom to top
+  let segments = 20;
+  let skySize = 2000; // Large enough to cover visible area
+  
+  for (let i = 0; i < segments; i++) {
+    let y1 = map(i, 0, segments, 375, -400);
+    let y2 = map(i + 1, 0, segments, 375, -400);
+    
+    let t1 = map(i, 0, segments, 0, 1);
+    let t2 = map(i + 1, 0, segments, 0, 1);
+    
+    // Create color interpolation based on vertical position
+    let c1, c2;
+    
+    if (t1 < 0.3) {
+      // Lower part: blend from bottom color to horizon
+      c1 = lerpColor(bottomColor, horizonColor, t1 / 0.3);
+    } else if (t1 < 0.6) {
+      // Middle part: blend from horizon to mid-sky
+      c1 = lerpColor(horizonColor, midSkyColor, (t1 - 0.3) / 0.3);
+    } else {
+      // Upper part: blend from mid-sky to top
+      c1 = lerpColor(midSkyColor, topSkyColor, (t1 - 0.6) / 0.4);
+    }
+    
+    if (t2 < 0.3) {
+      c2 = lerpColor(bottomColor, horizonColor, t2 / 0.3);
+    } else if (t2 < 0.6) {
+      c2 = lerpColor(horizonColor, midSkyColor, (t2 - 0.3) / 0.3);
+    } else {
+      c2 = lerpColor(midSkyColor, topSkyColor, (t2 - 0.6) / 0.4);
+    }
+    
+    // Draw gradient strip as a large rectangle in world space
+    noStroke();
+    beginShape();
+    fill(c1);
+    vertex(-skySize, y1, -skySize);
+    vertex(skySize, y1, -skySize);
+    fill(c2);
+    vertex(skySize, y2, -skySize);
+    vertex(-skySize, y2, -skySize);
+    endShape(CLOSE);
+    
+    // Draw same strip on other sides to create skybox effect
+    beginShape();
+    fill(c1);
+    vertex(-skySize, y1, skySize);
+    vertex(skySize, y1, skySize);
+    fill(c2);
+    vertex(skySize, y2, skySize);
+    vertex(-skySize, y2, skySize);
+    endShape(CLOSE);
+    
+    beginShape();
+    fill(c1);
+    vertex(-skySize, y1, -skySize);
+    vertex(-skySize, y1, skySize);
+    fill(c2);
+    vertex(-skySize, y2, skySize);
+    vertex(-skySize, y2, -skySize);
+    endShape(CLOSE);
+    
+    beginShape();
+    fill(c1);
+    vertex(skySize, y1, -skySize);
+    vertex(skySize, y1, skySize);
+    fill(c2);
+    vertex(skySize, y2, skySize);
+    vertex(skySize, y2, -skySize);
+    endShape(CLOSE);
+  }
+  
+  pop();
+}
+
 function draw() {
-  background(135, 206, 235); // sky blue
+  //background(135, 206, 235);//failsafe
+
+  drawSunsetBackground();
 
   // Lighting
-  ambientLight(180);
-  directionalLight(255, 255, 255, 0.2, -1, 0.2);
+  ambientLight(120, 80, 60);
+  directionalLight(255, 180, 120, 0.2, -1, 0.2);
 
   // Hunger depletes over time
   hunger -= 0.01 * (deltaTime / 16.67);
