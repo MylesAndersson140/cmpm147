@@ -23,6 +23,19 @@ let bushLS;
 
 let yAxis;
 
+// How many tiles wide the path should be (in tile‐indices).
+// A value of 1 means only j==0 is path. If you wanted a 3-tile-wide path, set this to 3, etc.
+const PATH_WIDTH_IN_TILES = 1;
+
+// Returns true if tile (i,j) falls on the dirt path.
+// Right now, we center the path at j==0. If PATH_WIDTH_IN_TILES>1, we cover
+// j in [ -floor(PATH_WIDTH_IN_TILES/2) ... +floor(PATH_WIDTH_IN_TILES/2) ].
+function isPathTile(i, j) {
+  const half = Math.floor(PATH_WIDTH_IN_TILES / 2);
+  return j >= -half && j <= +half;
+}
+
+
 function setup() {
   console.log("setup called");
   let canvas = createCanvas(600, 400, WEBGL);
@@ -315,6 +328,8 @@ function draw() {
     bushLS.render();
     pop();
   }
+
+
 }
 
 function drawTile(i, j) {
@@ -324,11 +339,36 @@ function drawTile(i, j) {
 
   // Ground with gradient color based on distance from player
   translate(x, 0, z);
-  fill(getFloorColor(i, j));
-  box(tileSize, 4, tileSize);
+
+  if (isPathTile(i, j)) {
+    // ─── PATH TILE: Draw brown “dirt” and do NOT spawn any grass/bush here ───
+    fill(139, 69, 19); // brown dirt color (R=139, G=69, B=19)
+    box(tileSize, 4, tileSize);
+  }
+  else {
+  // ─── 2B: Normal grass tile ───
+    fill(getFloorColor(i, j));
+    box(tileSize, 4, tileSize);
+
+    // Use deterministic seed so the same arrangement of bushes appears
+    // each time you revisit this tile.
+    randomSeed(i * 9999 + j * 1234);
+
+    // Only occasionally place an L‐system “bush” if you're the right distance away:
+    if (random() < 0.1 &&
+        abs(playerZ - (j * tileSize)) > 35 &&
+        abs(playerZ - (j * tileSize)) < 50) {
+      LSBushes.push({
+        x: i * tileSize,
+        z: j * tileSize,
+        flip: floor(random(0, 2))
+      });
+    }
+  }
+  pop();
+}
   
-  // Place objects randomly using consistent seed
-  randomSeed(i * 9999 + j * 1234);
+  
   
   /*// Place mushrooms
   for (let n = 0; n < 3; n++) {
@@ -355,59 +395,57 @@ function drawTile(i, j) {
     }
   }*/
   
-  // Place bush
-  if (random() < 0.1 && (abs(playerZ - (j * tileSize)) > 35 && abs(playerZ - (j * tileSize)) < 50))
-  {
-    //let offsetX = random() * tileSize - tileSize / 2;
-    //let offsetZ = random() * tileSize - tileSize / 2;
-    let offsetX = 0, offsetZ = 0;
-    LSBushes.push( { x: i * tileSize + offsetX, z: j * tileSize + offsetZ, flip: floor(random(0, 2)) } );
-  }
-  
-
-  pop();
-}
 
 
 // Generate mushrooms and grass for a tile and store them
 function generateMushroomsForTile(i, j) {
+  // If this is a path tile, store empty arrays—no mushrooms or grass.
+  if (isPathTile(i, j)) {
+    mushroomsByTile[`${i},${j}`] = {
+      regMushrooms:    [],
+      highMushrooms:   [],
+      poisonMushrooms: [],
+      grassBlades:     []
+    };
+    return;
+  }
+
+  // Otherwise, run the existing random‐spawn logic exactly as before:
   randomSeed(i * 9999 + j * 1234);
-  
-  let regM = [];
-  let highM = [];
-  let poisonM = [];
-  let grass = [];
+
+  let regM = [], highM = [], poisonM = [], grass = [];
 
   for (let n = 0; n < 3; n++) {
     if (random() < 0.03) {
-      let sideOffset = random() * tileSize - tileSize / 2;
+      let sideOffset = random() * tileSize - tileSize/2;
       regM.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
     }
     if (random() < 0.07) {
-      let sideOffset = random() < 0.5 ? -tileSize / 2 : tileSize / 2;
+      let sideOffset = random() < 0.5 ? -tileSize/2 : tileSize/2;
       highM.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
     }
     if (random() < 0.05) {
-      let sideOffset = random() < 0.5 ? -tileSize / 2 : tileSize / 2;
+      let sideOffset = random() < 0.5 ? -tileSize/2 : tileSize/2;
       poisonM.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
     }
   }
 
   for (let n = 0; n < 50; n++) {
     if (random() < 0.5) {
-      let offsetX = random() * tileSize - tileSize / 2;
-      let offsetZ = random() * tileSize - tileSize / 2;
+      let offsetX = random() * tileSize - tileSize/2;
+      let offsetZ = random() * tileSize - tileSize/2;
       grass.push({ x: i * tileSize + offsetX, z: j * tileSize + offsetZ });
     }
   }
 
   mushroomsByTile[`${i},${j}`] = {
-    regMushrooms: regM,
-    highMushrooms: highM,
+    regMushrooms:    regM,
+    highMushrooms:   highM,
     poisonMushrooms: poisonM,
-    grassBlades: grass
+    grassBlades:     grass
   };
 }
+
 
 // Hunger bar
 function displayHungerBar() {
