@@ -116,8 +116,8 @@ function drawSunsetBackground() {
   let skySize = 2000; // Large enough to cover visible area
   
   for (let i = 0; i < segments; i++) {
-    let y1 = map(i, 0, segments, 375, -400);
-    let y2 = map(i + 1, 0, segments, 375, -400);
+    let y1 = map(i, 0, segments, 800, -400);
+    let y2 = map(i + 1, 0, segments, 800, -400);
     
     let t1 = map(i, 0, segments, 0, 1);
     let t2 = map(i + 1, 0, segments, 0, 1);
@@ -197,7 +197,7 @@ function draw() {
   directionalLight(255, 180, 120, 0.2, -1, 0.2);
 
   // Hunger depletes over time
-  hunger -= 0.01 * (deltaTime / 16.67);
+  hunger -= 0.03 * (deltaTime / 16.67);
   hunger = constrain(hunger, 0, maxHunger);
 
   // Moving forward
@@ -227,7 +227,7 @@ function draw() {
   displayHungerBar();
 
   // Camera setup
-  let camHeight = 30; // Eye-level height
+  let camHeight = 40; // Eye-level height
   let eyeX = playerX * tileSize;
   let eyeY = -camHeight;
   let eyeZ = playerZ * tileSize;
@@ -328,8 +328,6 @@ function draw() {
     bushLS.render();
     pop();
   }
-
-
 }
 
 function drawTile(i, j) {
