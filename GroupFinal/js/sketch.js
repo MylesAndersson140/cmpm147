@@ -14,6 +14,8 @@ let poisonMushrooms = [];  // purple mushrooms
 let highMushrooms = [];  // red mushrooms
 let grassBlades = [];  // grass blades
 
+let redMushroomImg, brownMushroomImg, purpleMushroomImg, grassImg;
+
 let hunger = 100; // Full hunger
 let maxHunger = 100;
 
@@ -46,6 +48,16 @@ function setup() {
 
   // Generate mushrooms for initial player tile
   generateMushroomsForTile(playerTileX, playerTileZ);
+}
+
+function preload() {
+  redMushroomImg = loadImage("assets/red.png");
+  brownMushroomImg = loadImage("assets/brown.png");
+  purpleMushroomImg = loadImage("assets/purple.png");
+  //grassImg = loadImage("assets/grass.png");
+  grassImg = loadImage("assets/Grasss.png", img => {
+    img.loadPixels(); // Force pixel info (sometimes helps WebGL transparency)
+  });
 }
 
 function iniLSPlants()
@@ -94,6 +106,14 @@ function getFloorColor(i, j) {
   
   // Calculate green based on distance
   let greenValue = lerp(maxGreen, minGreen, normalizedDistance);
+  
+    push();
+    translate(i.x, -6, i.z);
+    rotateY(HALF_PI);
+    texture(grassImg);
+    plane(10, 10);
+    pop();
+
   
   return color(greenValue * 0.5, greenValue, greenValue * 0.5);
 }
@@ -273,7 +293,7 @@ function draw() {
           grassBlades.push(...tileData.grassBlades);
         } 
         else {
-          // Optionally generate mushrooms for tiles you haven't seen yet
+          // Optionally generate mushrooms for tiles that aren't seen yet
           generateMushroomsForTile(i, j);
           tileData = mushroomsByTile[`${i},${j}`];
           regMushrooms.push(...tileData.regMushrooms);
@@ -285,30 +305,12 @@ function draw() {
     }
   }
   
-  // Draw mushrooms
-  for (let m of regMushrooms) {
-    push();
-    translate(m.x, -2, m.z);
-    fill(139, 65, 19);
-    sphere(5); // Mushroom cap
-    pop();
-  }
-  for (let m of highMushrooms) {
-    push();
-    translate(m.x, -2, m.z);
-    fill(255, 5, 0);
-    sphere(4);
-    pop();
-  }
-  for (let m of poisonMushrooms) {
-    push();
-    translate(m.x, -2, m.z);
-    fill(128, 30, 128);
-    sphere(4);
-    pop();
-  }
+  // Draw mushroom images
+  drawAssets(regMushrooms, -7, brownMushroomImg, 10, 15);
+  drawAssets(highMushrooms, -6, redMushroomImg, 7, 10);
+  drawAssets(poisonMushrooms, -6, purpleMushroomImg, 8, 8);
   
-  // 3d grass blades
+  /*// 3d grass blades
   for (let g of grassBlades) {
     push();
     translate(g.x, -1, g.z);
@@ -316,7 +318,7 @@ function draw() {
     // Create a 2D grass blade using a thin box
     box(2, 8, 0.5);
     pop();
-  }
+  }*/
 
   // Draw LS Bushes
   for (let b of LSBushes) {
@@ -329,6 +331,26 @@ function draw() {
     pop();
   }
 }
+
+function drawAssets(assets, h, image, x, y) {
+  for (let i of assets) {
+    push();
+    translate(i.x, h, i.z);
+    //rotateY(-HALF_PI);
+
+    // Calculate angle to player for billboarding
+    let dx = playerX - i.x;
+    let dz = playerZ - i.z;
+    let angleToPlayer = atan2(dx, dz);
+
+    rotateY(angleToPlayer);
+    texture(image);
+    plane(x, y);
+    pop();
+  }
+}
+
+
 
 function drawTile(i, j) {
   push();
@@ -347,6 +369,14 @@ function drawTile(i, j) {
   // ─── 2B: Normal grass tile ───
     fill(getFloorColor(i, j));
     box(tileSize, 4, tileSize);
+
+    // grass image
+    push();
+    translate(0, -7, 0);
+    rotateY(HALF_PI);
+    texture(grassImg);
+    plane(40, 10);
+    pop();
 
     // Use deterministic seed so the same arrangement of bushes appears
     // each time you revisit this tile.
@@ -476,6 +506,8 @@ function displayHungerBar() {
   pop();
 }
 
+
+
 // Key functionalities
 function keyPressed() {
   if (key === 'w') {
@@ -483,6 +515,12 @@ function keyPressed() {
   }
   if (key === "ArrowUp"){
     moveForward = true;
+  }
+  if (key === 'a') {
+    angle -= 0.1;
+  }
+  if (key === 'd') {
+    angle += 0.1;
   }
 }
 
