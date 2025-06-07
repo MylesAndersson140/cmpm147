@@ -107,14 +107,6 @@ function getFloorColor(i, j) {
   // Calculate green based on distance
   let greenValue = lerp(maxGreen, minGreen, normalizedDistance);
   
-    push();
-    translate(i.x, -6, i.z);
-    rotateY(HALF_PI);
-    texture(grassImg);
-    plane(10, 10);
-    pop();
-
-  
   return color(greenValue * 0.5, greenValue, greenValue * 0.5);
 }
 
