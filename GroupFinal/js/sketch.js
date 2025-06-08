@@ -25,6 +25,10 @@ let bushLS;
 
 let yAxis;
 
+//dirt path
+let dirtTex;
+
+
 // How many tiles wide the path should be (in tile‐indices).
 // A value of 1 means only j==0 is path. If you wanted a 3-tile-wide path, set this to 3, etc.
 const PATH_WIDTH_IN_TILES = 1;
@@ -45,6 +49,29 @@ function setup() {
   noStroke();
   yAxis = createVector(0, -1, 0);
   iniLSPlants();
+
+  // create a 64×64 dirt texture
+  dirtTex = createGraphics(64, 64);
+  dirtTex.noStroke();
+  for (let x = 0; x < 64; x++) {
+    for (let y = 0; y < 64; y++) {
+      // base brown + a little noise
+      let v = noise(x * 0.1, y * 0.1) * 30;      // smooth noise
+      let r = 139 + random(-10, 10) + v;
+      let g =  69 + random(-10, 10) + v * 0.5;
+      let b =  19 + random(-10,  5);
+      dirtTex.fill(r, g, b);
+      dirtTex.rect(x, y, 1, 1);
+    }
+  }
+  // sprinkle in some “rocks”
+  dirtTex.noFill();
+  for (let i = 0; i < 100; i++) {
+    let sx = random(64), sy = random(64), sz = random(1,3);
+    dirtTex.fill(200, 200, 200, 200);
+    dirtTex.ellipse(sx, sy, sz, sz);
+  }
+
 
   // Generate mushrooms for initial player tile
   generateMushroomsForTile(playerTileX, playerTileZ);
@@ -353,8 +380,9 @@ function drawTile(i, j) {
   translate(x, 0, z);
 
   if (isPathTile(i, j)) {
-    // ─── PATH TILE: Draw brown “dirt” and do NOT spawn any grass/bush here ───
-    fill(139, 69, 19); // brown dirt color (R=139, G=69, B=19)
+    noStroke();
+    texture(dirtTex);
+    // box will now show your dirtTex on all faces
     box(tileSize, 4, tileSize);
   }
   else {
