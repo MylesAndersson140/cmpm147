@@ -44,7 +44,7 @@ function isPathTile(i, j) {
 
 function setup() {
   console.log("setup called");
-  let canvas = createCanvas(600, 400, WEBGL);
+  let canvas = createCanvas(1200, 600, WEBGL);
   canvas.parent('canvas-container');
   noStroke();
   yAxis = createVector(0, -1, 0);
@@ -119,8 +119,8 @@ function isTileInFront(i, j) {
     diff += TWO_PI;
   }
 
-  // Allow tiles in a 90 degree cone (±PI/4 radians) in front
-  return abs(diff) < PI / 4;
+  // Allow tiles in a 120 degree cone (±PI/3 radians) in front (had to update from 90 to 120 because of larger canvas introduced a bug - Gabe)
+  return abs(diff) < PI / 3;
 }
 
 function getFloorColor(i, j) {
@@ -147,7 +147,7 @@ function drawSunsetBackground() {
   push();
   
   // Draw a large skybox far in the distance
-  translate(playerX * tileSize, -200, playerZ * tileSize);
+  translate(playerX * tileSize, -600, playerZ * tileSize);
   
   // Define sunset colors
   let horizonColor = color(255, 160, 100);  // Orange-red at horizon
