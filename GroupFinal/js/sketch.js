@@ -50,6 +50,11 @@ function setup() {
   yAxis = createVector(0, -1, 0);
   iniLSPlants();
 
+  // let gl = this._renderer.GL;
+  // gl.disable(gl.DEPTH_TEST);
+
+  angle = PI;
+
   // create a 64×64 dirt texture
   dirtTex = createGraphics(64, 64);
   dirtTex.noStroke();
@@ -324,11 +329,21 @@ function draw() {
     }
   }
   
+  // for (let g of grassBlades)
+  // {
+  //   push();
+  //   translate(g.x, -14, g.z);
+  //   fill(0, 0, 0, 0);
+  //   rotateY(HALF_PI);
+  //   image(grassImg, 0, 0, 40, 10);
+  //   pop();
+  // }
+
   // Draw mushroom images
   drawAssets(regMushrooms, -7, brownMushroomImg, 10, 15);
   drawAssets(highMushrooms, -6, redMushroomImg, 7, 10);
   drawAssets(poisonMushrooms, -6, purpleMushroomImg, 8, 8);
-  
+
   /*// 3d grass blades
   for (let g of grassBlades) {
     push();
@@ -390,13 +405,18 @@ function drawTile(i, j) {
     fill(getFloorColor(i, j));
     box(tileSize, 4, tileSize);
 
+    let gl = this._renderer.GL;
+    gl.disable(gl.DEPTH_TEST);
     // grass image
     push();
+    fill(0, 0, 0, 0);
+    noStroke();
     translate(0, -7, 0);
     rotateY(HALF_PI);
     texture(grassImg);
     plane(40, 10);
     pop();
+    gl.enable(gl.DEPTH_TEST);
 
     // Use deterministic seed so the same arrangement of bushes appears
     // each time you revisit this tile.
