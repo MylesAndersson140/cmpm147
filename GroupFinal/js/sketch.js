@@ -328,16 +328,6 @@ function draw() {
       }
     }
   }
-  
-  // for (let g of grassBlades)
-  // {
-  //   push();
-  //   translate(g.x, -14, g.z);
-  //   fill(0, 0, 0, 0);
-  //   rotateY(HALF_PI);
-  //   image(grassImg, 0, 0, 40, 10);
-  //   pop();
-  // }
 
   // Draw mushroom images
   drawAssets(regMushrooms, -7, brownMushroomImg, 10, 15);
@@ -420,12 +410,13 @@ function drawTile(i, j) {
 
     // Use deterministic seed so the same arrangement of bushes appears
     // each time you revisit this tile.
+    //randomSeed(i * 9999 + j * 1234);
     randomSeed(i * 9999 + j * 1234);
 
     // Only occasionally place an L‐system “bush” if you're the right distance away:
     if (random() < 0.1 &&
-        abs(playerZ - (j * tileSize)) > 35 &&
-        abs(playerZ - (j * tileSize)) < 50) {
+        abs(playerZ - (j * tileSize)) > 5 &&
+        abs(playerZ - (j * tileSize)) < 100) {
       LSBushes.push({
         x: i * tileSize,
         z: j * tileSize,
