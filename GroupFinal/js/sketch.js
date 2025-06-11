@@ -19,6 +19,9 @@ let redMushroomImg, brownMushroomImg, purpleMushroomImg, grassImg;
 let hunger = 100; // Full hunger
 let maxHunger = 100;
 
+// Journal system
+let journalOpen = false;
+
 // L-System Plants
 let LSBushes = [];
 let bushLS;
@@ -27,7 +30,6 @@ let yAxis;
 
 //dirt path
 let dirtTex;
-
 
 // How many tiles wide the path should be (in tile‐indices).
 // A value of 1 means only j==0 is path. If you wanted a 3-tile-wide path, set this to 3, etc.
@@ -40,7 +42,6 @@ function isPathTile(i, j) {
   const half = Math.floor(PATH_WIDTH_IN_TILES / 2);
   return j >= -half && j <= +half;
 }
-
 
 function setup() {
   console.log("setup called");
@@ -69,14 +70,13 @@ function setup() {
       dirtTex.rect(x, y, 1, 1);
     }
   }
-  // sprinkle in some “rocks”
+  // sprinkle in some "rocks"
   dirtTex.noFill();
   for (let i = 0; i < 100; i++) {
     let sx = random(64), sy = random(64), sz = random(1,3);
     dirtTex.fill(200, 200, 200, 200);
     dirtTex.ellipse(sx, sy, sz, sz);
   }
-
 
   // Generate mushrooms for initial player tile
   generateMushroomsForTile(playerTileX, playerTileZ);
@@ -92,8 +92,7 @@ function preload() {
   });
 }
 
-function iniLSPlants()
-{
+function iniLSPlants() {
   bushLS = new LSystem();
   bushLS.simulate(2);
 }
@@ -157,11 +156,11 @@ function drawSunsetBackground() {
   
   // Draw gradient quads from bottom to top
   let segments = 20;
-  let skySize = 2000; // Large enough to cover visible area
+  let skySize = 1850; // Large enough to cover visible area
   
   for (let i = 0; i < segments; i++) {
-    let y1 = map(i, 0, segments, 800, -400);
-    let y2 = map(i + 1, 0, segments, 800, -400);
+    let y1 = map(i, 0, segments, 1650, -400);
+    let y2 = map(i + 1, 0, segments, 1650, -400);
     
     let t1 = map(i, 0, segments, 0, 1);
     let t2 = map(i + 1, 0, segments, 0, 1);
@@ -244,8 +243,8 @@ function draw() {
   hunger -= 0.03 * (deltaTime / 16.67);
   hunger = constrain(hunger, 0, maxHunger);
 
-  // Moving forward
-  if (moveForward) {
+  // Moving forward (only if journal is closed)
+  if (moveForward && !journalOpen) {
     playerX += cos(angle) * 0.1;
     playerZ += sin(angle) * 0.1;
 
@@ -267,8 +266,14 @@ function draw() {
     }
   }
 
-  // Show hunger bar
+  // Show hunger bar and journal icon
   displayHungerBar();
+
+  // Show journal if open
+  if (journalOpen) {
+    displayJournal();
+    return; // Don't render grass when journal is open
+  }
 
   // Camera setup
   let camHeight = 40; // Eye-level height
@@ -294,14 +299,6 @@ function draw() {
   let endX = floor(playerX + range);
   let startZ = floor(playerZ - range);
   let endZ = floor(playerZ + range);
-
-    /*for (let i = startX; i < endX; i++) {
-      for (let j = startZ; j < endZ; j++) {
-        if (isTileInFront(i, j)) {
-          drawTile(i, j);
-        }
-      }
-    }*/
   
   for (let i = startX; i < endX; i++) {
     for (let j = startZ; j < endZ; j++) {
@@ -334,16 +331,6 @@ function draw() {
   drawAssets(highMushrooms, -6, redMushroomImg, 7, 10);
   drawAssets(poisonMushrooms, -6, purpleMushroomImg, 8, 8);
 
-  /*// 3d grass blades
-  for (let g of grassBlades) {
-    push();
-    translate(g.x, -1, g.z);
-    fill(50, 150, 50);
-    // Create a 2D grass blade using a thin box
-    box(2, 8, 0.5);
-    pop();
-  }*/
-
   // Draw LS Bushes
   for (let b of LSBushes) {
     push();
@@ -354,13 +341,13 @@ function draw() {
     bushLS.render();
     pop();
   }
+  
 }
 
 function drawAssets(assets, h, image, x, y) {
   for (let i of assets) {
     push();
     translate(i.x, h, i.z);
-    //rotateY(-HALF_PI);
 
     // Calculate angle to player for billboarding
     let dx = playerX - i.x;
@@ -373,8 +360,6 @@ function drawAssets(assets, h, image, x, y) {
     pop();
   }
 }
-
-
 
 function drawTile(i, j) {
   push();
@@ -410,10 +395,9 @@ function drawTile(i, j) {
 
     // Use deterministic seed so the same arrangement of bushes appears
     // each time you revisit this tile.
-    //randomSeed(i * 9999 + j * 1234);
     randomSeed(i * 9999 + j * 1234);
 
-    // Only occasionally place an L‐system “bush” if you're the right distance away:
+    // Only occasionally place an L‐system "bush" if you're the right distance away:
     if (random() < 0.1 &&
         abs(playerZ - (j * tileSize)) > 5 &&
         abs(playerZ - (j * tileSize)) < 100) {
@@ -426,35 +410,6 @@ function drawTile(i, j) {
   }
   pop();
 }
-  
-  
-  
-  /*// Place mushrooms
-  for (let n = 0; n < 3; n++) {
-    if (random() < 0.03) {
-      let sideOffset = random() * tileSize - tileSize / 2; 
-      regMushrooms.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
-    }
-    if (random() < 0.07) {
-      let sideOffset = random() < 0.5 ? -tileSize / 2 : tileSize / 2;
-      highMushrooms.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
-    }
-    if (random() < 0.05) {
-      let sideOffset = random() < 0.5 ? -tileSize / 2 : tileSize / 2;
-      poisonMushrooms.push({ x: i * tileSize + sideOffset, z: j * tileSize + sideOffset });
-    }
-  }
-  
-  // Place grass blades (more frequent than mushrooms)
-  for (let n = 0; n < 50; n++) {
-    if (random() < 0.3) {
-      let offsetX = random() * tileSize - tileSize / 2;
-      let offsetZ = random() * tileSize - tileSize / 2;
-      grassBlades.push({ x: i * tileSize + offsetX, z: j * tileSize + offsetZ });
-    }
-  }*/
-  
-
 
 // Generate mushrooms and grass for a tile and store them
 function generateMushroomsForTile(i, j) {
@@ -505,8 +460,104 @@ function generateMushroomsForTile(i, j) {
   };
 }
 
+// Check if mouse is over journal icon
+function isMouseOverJournalIcon() {
+  let iconSize = 50;
+  let iconX = width - 120;
+  let iconY = 20;
+  
+  return mouseX >= iconX && mouseX <= iconX + iconSize && 
+         mouseY >= iconY && mouseY <= iconY + iconSize;
+}
 
-// Hunger bar
+function mousePressed() {
+  if (isMouseOverJournalIcon()) {
+    journalOpen = !journalOpen;
+  }
+}
+
+// Display journal UI
+function displayJournal() {
+  resetMatrix();
+  camera();
+  noLights();
+  
+  let journalGraphics = createGraphics(600, 400);
+  
+  journalGraphics.background(240, 235, 220); // Off-white background
+  
+  // Journal binding
+  journalGraphics.fill(101, 67, 33);
+  journalGraphics.noStroke();
+  journalGraphics.rect(0, 0, 20, 400, 10, 0, 0, 10);
+  
+  // Title
+  journalGraphics.fill(101, 67, 33);
+  journalGraphics.textAlign(CENTER, TOP);
+  journalGraphics.textSize(24);
+  journalGraphics.textStyle(BOLD);
+  journalGraphics.text("Forager's Journal", 300, 20);
+  
+  // Sample text
+  journalGraphics.fill(50, 50, 50);
+  journalGraphics.textAlign(LEFT, TOP);
+  journalGraphics.textSize(16);
+  journalGraphics.textStyle(NORMAL);
+  journalGraphics.text("Mushrooms can be good and bad :)", 40, 80);
+  
+  push();
+  translate(-width / 2, -height / 2);
+  
+  // Semi-transparent background overlay
+  fill(0, 0, 0, 150);
+  rect(0, 0, width, height);
+  
+  // Journal background with border
+  let journalWidth = 600;
+  let journalHeight = 400;
+  let journalX = (width - journalWidth) / 2;
+  let journalY = (height - journalHeight) / 2;
+  
+  // Draw border
+  stroke(139, 69, 19);
+  strokeWeight(3);
+  noFill();
+  rect(journalX, journalY, journalWidth, journalHeight, 10);
+  
+  push();
+  translate(journalX + journalWidth/2, journalY + journalHeight/2);
+  noStroke();
+  texture(journalGraphics);
+  plane(journalWidth, journalHeight);
+  pop();
+  
+  // Close button
+  fill(200, 100, 100);
+  stroke(150, 50, 50);
+  strokeWeight(2);
+  let closeX = journalX + journalWidth - 40;
+  let closeY = journalY + 10;
+  ellipse(closeX, closeY, 20, 20);
+  
+  // X mark 
+  stroke(255);
+  strokeWeight(2);
+  let offset = 4;
+  line(closeX - offset, closeY - offset, closeX + offset, closeY + offset);
+  line(closeX + offset, closeY - offset, closeX - offset, closeY + offset);
+  
+  pop();
+
+  if (mouseIsPressed) {
+    let closeX = width/2 + journalWidth/2 - 40;
+    let closeY = height/2 - journalHeight/2 + 10;
+    if (dist(mouseX, mouseY, closeX, closeY) < 10) {
+      journalOpen = false;
+    }
+  }
+}
+
+// Hunger bar and journal icon
 function displayHungerBar() {
   resetMatrix();
   camera();  // Reset to default orthographic camera
@@ -535,23 +586,74 @@ function displayHungerBar() {
   rect(x, y, barWidth, barHeight);
 
   pop();
+
+  resetMatrix();
+  camera();  // Reset to default orthographic camera
+  noLights();
+  push();
+  translate(-width / 2, -height / 2);  // Top-left corner as origin
+
+  // Position and size for journal icon (top right)
+  let iconSize = 50;
+  let iconX = width - 120;  // 120px from right edge
+  let iconY = 20; // 20px from top edge
+
+  // Brown background
+  fill(139, 69, 19);
+  stroke(101, 67, 33);
+  strokeWeight(2);
+  rect(iconX, iconY, iconSize, iconSize, 5);
+
+  // Leather on the left side
+  fill(101, 67, 33);
+  noStroke();
+  rect(iconX, iconY, 6, iconSize, 5, 0, 0, 5);
+
+  // Pages
+  fill(240, 240, 230);
+  rect(iconX + 8, iconY + 4, iconSize - 12, iconSize - 8, 0, 3, 3, 0);
+
+  // Lines on page
+  stroke(200, 200, 200);
+  strokeWeight(1);
+  for (let i = 0; i < 3; i++) {
+    let lineY = iconY + 12 + (i * 6);
+    line(iconX + 12, lineY, iconX + iconSize - 6, lineY);
+  }
+
+  // Small quill pen
+  stroke(101, 67, 33);
+  strokeWeight(2);
+  line(iconX + 20, iconY + 35, iconX + 28, iconY + 28);
+
+  pop();
 }
-
-
 
 // Key functionalities
 function keyPressed() {
-  if (key === 'w') {
-    moveForward = true;
+  if (!journalOpen) {  // Only allow movement when journal is closed
+    if (key === 'w') {
+      moveForward = true;
+    }
+    if (key === "ArrowUp"){
+      moveForward = true;
+    }
+    if (key === 'a') {
+      angle -= 0.1;
+    }
+    if (key === 'd') {
+      angle += 0.1;
+    }
   }
-  if (key === "ArrowUp"){
-    moveForward = true;
+  
+  // Allow journal to be opened/closed with 'j' key
+  if (key === 'j' || key === 'J') {
+    journalOpen = !journalOpen;
   }
-  if (key === 'a') {
-    angle -= 0.1;
-  }
-  if (key === 'd') {
-    angle += 0.1;
+  
+  // Allow journal to be closed with Escape key
+  if (key === 'Escape' || keyCode === ESCAPE) {
+    journalOpen = false;
   }
 }
 
