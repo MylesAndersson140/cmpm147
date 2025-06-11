@@ -28,6 +28,8 @@ let yAxis;
 //dirt path
 let dirtTex;
 
+let stickImg;
+
 
 // How many tiles wide the path should be (in tile‐indices).
 // A value of 1 means only j==0 is path. If you wanted a 3-tile-wide path, set this to 3, etc.
@@ -90,6 +92,7 @@ function preload() {
   grassImg = loadImage("assets/Grasss.png", img => {
     img.loadPixels(); // Force pixel info (sometimes helps WebGL transparency)
   });
+  stickImg = loadImage("assets/stick.png");
 }
 
 function iniLSPlants()
@@ -389,6 +392,30 @@ function drawTile(i, j) {
     texture(dirtTex);
     // box will now show your dirtTex on all faces
     box(tileSize, 4, tileSize);
+
+    // seed so sticks stay in the same places on each visit
+    randomSeed(i * 5432 + j * 9876);
+    // pick up to 2 sticks per tile
+    let numSticks = floor(random(0, 3));
+    for (let s = 0; s < numSticks; s++) {
+      // random offset but keep them inside the tile bounds
+      let offsetX = random(-tileSize/2 + 5, tileSize/2 - 5);
+      let offsetZ = random(-tileSize/2 + 5, tileSize/2 - 5);
+      let rot     = random(TWO_PI);
+
+      push();
+      // move to just above the top face of the box (top is at y = –2 in your coord system)
+      translate(offsetX, -2, offsetZ);
+      // rotate the plane to lie flat on the ground
+      rotateX(PI/2);
+      // spin it randomly around vertical axis
+      rotateZ(rot);
+
+      texture(stickImg);
+      // adjust dimensions to taste: e.g. 30×5 fits a 40×40 tile nicely
+      plane(30, 5);
+      pop();
+    }
   }
   else {
   // ─── 2B: Normal grass tile ───
