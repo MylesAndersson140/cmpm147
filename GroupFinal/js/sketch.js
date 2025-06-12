@@ -127,7 +127,7 @@ function preload() {
   redMushroomImg = loadImage("assets/red.PNG");
   brownMushroomImg = loadImage("assets/brown.PNG");
   purpleMushroomImg = loadImage("assets/purple.PNG");
-  grassImg = loadImage("assets/Grasss.png");
+  grassImg = loadImage("assets/Grasss.PNG");
   stickImg = loadImage("assets/stick.png");
   leafImgs = [
     loadImage("assets/leaf1.PNG"),
