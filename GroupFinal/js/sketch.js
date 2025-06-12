@@ -18,6 +18,7 @@ let redMushroomImg, brownMushroomImg, purpleMushroomImg, grassImg;
 
 let hunger = 100; // Full hunger
 let maxHunger = 100;
+let highness = 0;
 
 // Journal system
 let journalOpen = false;
@@ -27,6 +28,7 @@ let LSBushes = [];
 let bushLS;
 
 let yAxis;
+let xAxis;
 
 //dirt path
 let dirtTex;
@@ -52,6 +54,7 @@ function setup() {
   canvas.parent('canvas-container');
   noStroke();
   yAxis = createVector(0, -1, 0);
+  xAxis = createVector(-1, 0, 0);
   iniLSPlants();
 
   // let gl = this._renderer.GL;
