@@ -35,6 +35,77 @@ let dirtTex;
 let stickImg;
 let leafImgs = [];
 
+// Shader stuff
+let noiseFilter;
+
+// Frag shader modified from https://www.shadertoy.com/view/dsGfRz
+let noiseFilterSrc = `
+precision highp float;
+
+uniform sampler2D tex0;
+varying vec2 vTexCoord; 
+
+uniform vec2 iResolution;
+uniform float iTime;
+
+uniform float intensity;
+
+float hash12(vec2 p) { // hash function taken from shadertoy.com/view/4djSRW
+	vec3 p3  = fract(vec3(p.xyx) * .1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+vec2 randDir(vec2 id) {
+    float a = hash12(id)*6.28319 + iTime;
+    return vec2(cos(a), sin(a));
+}
+
+vec2 smootherstep(vec2 x) {
+    return x*x*x*(x*(6.*x-15.)+10.);
+}
+
+vec3 colorMap(float p) {
+    // https://www.desmos.com/calculator/tox6hpgflr
+    float r = clamp(abs(6.*p-3.)-1., 0., 1.);
+    float g = clamp(-abs(6.*p-2.)+2., 0., 1.);
+    float b = clamp(-abs(6.*p-4.)+2., 0., 1.);
+    
+    return vec3(r, g, b);
+}
+
+float perlin(vec2 coord) {
+    vec2 gridId = floor(coord);
+    vec2 gridUv = fract(coord);
+    
+    vec2 bottomLeft = gridUv;
+    vec2 bottomRight = gridUv-vec2(1, 0);
+    vec2 topLeft = gridUv-vec2(0, 1);
+    vec2 topRight = gridUv-vec2(1, 1);
+    
+    vec2 gridUvSmooth = smootherstep(gridUv);
+    float lerp1 = mix(dot(bottomLeft, randDir(gridId)), dot(bottomRight, randDir(gridId+vec2(1, 0))), gridUvSmooth.x);
+    float lerp2 = mix(dot(topLeft, randDir(gridId+vec2(0, 1))), dot(topRight, randDir(gridId+vec2(1, 1))), gridUvSmooth.x);
+    
+    return mix(lerp1, lerp2, gridUvSmooth.y);
+}
+
+void main()
+{
+    vec2 uv = (vTexCoord * 2.0 - iResolution.xy) / iResolution.y;
+    float noise = perlin(uv*2.0);
+    vec3 background = vec3(0.9, 0.8, 0.7);
+    vec3 noiseRainbow = colorMap(noise+0.5);
+    float contourMask = mod(noise, 0.05)*20. < 0.5 ? 1. : sin(iTime)/2.+0.5;
+    
+		float rO = mix(noiseRainbow.x, texture2D(tex0, vTexCoord).r, intensity);
+		float gO = mix(noiseRainbow.y, texture2D(tex0, vTexCoord).g, intensity);
+		float bO = mix(noiseRainbow.z, texture2D(tex0, vTexCoord).b, intensity);
+		
+    gl_FragColor = vec4(rO, gO, bO, 1.0);
+}
+`;
+
 // How many tiles wide the path should be (in tile‐indices).
 // A value of 1 means only j==0 is path. If you wanted a 3-tile-wide path, set this to 3, etc.
 const PATH_WIDTH_IN_TILES = 1;
@@ -85,6 +156,11 @@ function setup() {
 
   // Generate mushrooms for initial player tile
   generateMushroomsForTile(playerTileX, playerTileZ);
+
+  // Shader stuff
+  noiseFilter = createFilterShader(noiseFilterSrc);
+  noiseFilter.setUniform("iResolution", [1, 1]);
+  noiseFilter.setUniform("intensity", 1.0);
 }
 
 function preload() {
@@ -365,6 +441,18 @@ function draw() {
   plane(100, 50);
   gl.enable(gl.DEPTH_TEST);
   pop();
+
+  // Shader stuff
+  noiseFilter.setUniform("iTime", millis()/1000);
+  if(highness > 0 && highness < 1)
+  {
+    noiseFilter.setUniform("intensity", 1 - highness);
+  }
+  else if (highness >= 1)
+  {
+    noiseFilter.setUniform("intensity", 0.05);
+  }
+  filter(noiseFilter);
 }
 
 function drawAssets(assets, h, image, x, y) {
@@ -726,7 +814,7 @@ function EatMushroom()
       mushroomsByTile[`${playerTileX - 2},${1}`].highMushrooms = [];
       mushroomsByTile[`${playerTileX - 1},${1}`].highMushrooms = [];
       highMushrooms.splice(i, 1);
-      highness += 10;
+      highness += 0.01;
       console.log("Highness:", highness);
     }
   }
