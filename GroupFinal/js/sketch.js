@@ -38,6 +38,8 @@ let leafImgs = [];
 // Shader stuff
 let noiseFilter;
 
+let gameOver = false;
+
 // Frag shader modified from https://www.shadertoy.com/view/dsGfRz
 let noiseFilterSrc = `
 precision highp float;
@@ -330,6 +332,15 @@ function draw() {
   hunger -= 0.03 * (deltaTime / 16.67);
   hunger = constrain(hunger, 0, maxHunger);
 
+  if (hunger <= 0) {
+    gameOver = true;
+  }
+
+  if (gameOver) {
+    displayDeathScreen();
+    return;
+  }
+
   // Moving forward (only if journal is closed)
   if (moveForward && !journalOpen) {
     playerX += cos(angle) * 0.1;
@@ -401,7 +412,7 @@ function draw() {
           grassBlades.push(...tileData.grassBlades);
         } 
         else {
-          // Optionally generate mushrooms for tiles that aren't seen yet
+          // generate mushrooms for tiles that aren't seen yet
           generateMushroomsForTile(i, j);
           tileData = mushroomsByTile[`${i},${j}`];
           regMushrooms.push(...tileData.regMushrooms);
@@ -559,6 +570,58 @@ function drawTile(i, j) {
   }
   pop();
 }
+
+// if player dies, death message
+function displayDeathScreen() {
+  resetMatrix();
+  camera();
+  noLights();
+  
+  let journalGraphics = createGraphics(600, 400);
+  
+  journalGraphics.background(240, 235, 220); // Off-white background
+  
+  // Title
+  journalGraphics.fill(101, 67, 33);
+  journalGraphics.textAlign(CENTER, TOP);
+  journalGraphics.textSize(24);
+  journalGraphics.textStyle(BOLD);
+  journalGraphics.text("You died from starvation :(", 300, 20);
+  
+  // Sample text
+  journalGraphics.fill(50, 50, 50);
+  journalGraphics.textAlign(LEFT, TOP);
+  journalGraphics.textSize(16);
+  journalGraphics.textStyle(NORMAL);
+  journalGraphics.text("Reset browser to restart game", 40, 80);
+  
+  push();
+  translate(-width / 2, -height / 2);
+  
+  // Semi-transparent background overlay
+  fill(0, 0, 0, 150);
+  rect(0, 0, width, height);
+  
+  // Journal background with border
+  let journalWidth = 600;
+  let journalHeight = 400;
+  let journalX = (width - journalWidth) / 2;
+  let journalY = (height - journalHeight) / 2;
+  
+  // Draw border
+  stroke(139, 69, 19);
+  strokeWeight(3);
+  noFill();
+  rect(journalX, journalY, journalWidth, journalHeight, 10);
+  
+  push();
+  translate(journalX + journalWidth/2, journalY + journalHeight/2);
+  noStroke();
+  texture(journalGraphics);
+  plane(journalWidth, journalHeight);
+  pop();
+}
+
 
 // Generate mushrooms and grass for a tile and store them
 function generateMushroomsForTile(i, j) {
