@@ -9,11 +9,40 @@ let poisonMushrooms = [];  // purple mushrooms
 let highMushrooms = [];  // red mushrooms
 let grassBlades = [];  // grass blades
 
+
+let redMushroomImg, brownMushroomImg, purpleMushroomImg, grassImg;
+
+let hunger = 100; // Full hunger
+let maxHunger = 100;
+let highness = 0;
+
+// Journal system
+let journalOpen = false;
+
 // L-System Plants
 let LSBushes = [];
 let bushLS;
 
 let yAxis;
+let xAxis;
+
+
+//dirt path
+let dirtTex;
+
+let stickImg;
+
+// How many tiles wide the path should be (in tile‐indices).
+// A value of 1 means only j==0 is path. If you wanted a 3-tile-wide path, set this to 3, etc.
+const PATH_WIDTH_IN_TILES = 1;
+
+// Returns true if tile (i,j) falls on the dirt path.
+// Right now, we center the path at j==0. If PATH_WIDTH_IN_TILES>1, we cover
+// j in [ -floor(PATH_WIDTH_IN_TILES/2) ... +floor(PATH_WIDTH_IN_TILES/2) ].
+function isPathTile(i, j) {
+  const half = Math.floor(PATH_WIDTH_IN_TILES / 2);
+  return j >= -half && j <= +half;
+}
 
 function setup() {
   console.log("setup called");
@@ -21,6 +50,7 @@ function setup() {
   canvas.parent('canvas-container');
   noStroke();
   yAxis = createVector(0, -1, 0);
+  xAxis = createVector(-1, 0, 0);
   iniLSPlants();
 }
 
@@ -163,6 +193,38 @@ function draw() {
     bushLS.render();
     pop();
   }
+
+
+  // draw eat zone box
+  push();
+  let gl = this._renderer.GL;
+  gl.disable(gl.DEPTH_TEST);
+  translate(playerTileX * tileSize - 100 - tileSize/2, 0, 0);
+  rotate(PI/2, yAxis);
+  rotate(PI/2, xAxis);
+  fill(255, 217, 102, 128);
+  //box(50, 50, 75);
+  plane(100, 50);
+  gl.enable(gl.DEPTH_TEST);
+  pop();
+  
+}
+
+function drawAssets(assets, h, image, x, y) {
+  for (let i of assets) {
+    push();
+    translate(i.x, h, i.z);
+
+    // Calculate angle to player for billboarding
+    let dx = playerX - i.x;
+    let dz = playerZ - i.z;
+    let angleToPlayer = atan2(dx, dz);
+
+    rotateY(angleToPlayer);
+    texture(image);
+    plane(x, y);
+    pop();
+  }
 }
 
 function drawTile(i, j) {
@@ -216,10 +278,100 @@ function drawTile(i, j) {
   pop();
 }
 
+function EatMushroom()
+{
+  let eatZoneX = playerTileX * tileSize - 100;
+  let eatZoneZ = playerTileZ * tileSize;
+  for (let i = 0; i < regMushrooms.length; i++)
+  {
+    if ((regMushrooms[i].x > eatZoneX - 25 && regMushrooms[i].x < eatZoneX + 25) && (regMushrooms[i].z > eatZoneZ - 50 && regMushrooms[i].z < eatZoneZ + 50))
+    {
+      // eat the mushroom so dont add it to the new array
+      console.log("Ate a regular mushroom!");
+      //console.log(regMushrooms[i].z / tileSize);
+      mushroomsByTile[`${playerTileX - 1},${-1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${-1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${-1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 1},${1}`].regMushrooms = [];
+      regMushrooms.splice(i, 1);
+      hunger += 20;
+    }
+  }
+
+  for (let i = 0; i < highMushrooms.length; i++)
+  {
+    if ((highMushrooms[i].x > eatZoneX - 25 && highMushrooms[i].x < eatZoneX + 25) && (highMushrooms[i].z > eatZoneZ - 50 && highMushrooms[i].z < eatZoneZ + 50))
+    {
+      // eat the mushroom so dont add it to the new array
+      console.log("Ate a magic mushroom!");
+      //console.log(regMushrooms[i].z / tileSize);
+      mushroomsByTile[`${playerTileX - 1},${-1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${-1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${-1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 1},${1}`].highMushrooms = [];
+      highMushrooms.splice(i, 1);
+      highness += 10;
+      console.log("Highness:", highness);
+    }
+  }
+
+  for (let i = 0; i < poisonMushrooms.length; i++)
+  {
+    if ((poisonMushrooms[i].x > eatZoneX - 25 && poisonMushrooms[i].x < eatZoneX + 25) && (poisonMushrooms[i].z > eatZoneZ - 50 && poisonMushrooms[i].z < eatZoneZ + 50))
+    {
+      // eat the mushroom so dont add it to the new array
+      console.log("Ate a poisonous mushroom!");
+      //console.log(regMushrooms[i].z / tileSize);
+      mushroomsByTile[`${playerTileX - 1},${-1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${-1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${-1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 1},${1}`].poisonMushrooms = [];
+      poisonMushrooms.splice(i, 1);
+      hunger -= 10;
+    }
+  }
+
+  //console.log(regMushrooms);
+  console.log(playerTileX);
+  console.log(playerTileZ);
+}
+
 // Key functionalities
 function keyPressed() {
-  if (key === 'w') {
-    moveForward = true;
+  if (!journalOpen) {  // Only allow movement when journal is closed
+    if (key === 'w') {
+      moveForward = true;
+    }
+    if (key === "ArrowUp"){
+      moveForward = true;
+    }
+    if (key === 'a') {
+      angle -= 0.1;
+    }
+    if (key === 'd') {
+      angle += 0.1;
+    }
+    if (key == "Enter")
+    {
+      //console.log("Enter pressed!");
+      EatMushroom();
+    }
+  }
+  
+  // Allow journal to be opened/closed with 'j' key
+  if (key === 'j' || key === 'J') {
+    journalOpen = !journalOpen;
+  }
+  
+  // Allow journal to be closed with Escape key
+  if (key === 'Escape' || keyCode === ESCAPE) {
+    journalOpen = false;
   }
 }
 
