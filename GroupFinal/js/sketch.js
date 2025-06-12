@@ -322,12 +322,11 @@ function drawSunsetBackground() {
 function draw() {
   //background(135, 206, 235);//failsafe
 
-  drawSunsetBackground();
-
-  // Lighting
-  ambientLight(120, 80, 60);
-  directionalLight(255, 180, 120, 0.2, -1, 0.2);
-
+  // Show journal if open
+  if (journalOpen) {
+    displayJournal();
+    return; // Don't render grass when journal is open
+  }
   // Hunger depletes over time
   hunger -= 0.03 * (deltaTime / 16.67);
   hunger = constrain(hunger, 0, maxHunger);
@@ -340,6 +339,11 @@ function draw() {
     displayDeathScreen();
     return;
   }
+  drawSunsetBackground();
+
+  // Lighting
+  ambientLight(120, 80, 60);
+  directionalLight(255, 180, 120, 0.2, -1, 0.2);
 
   // Moving forward (only if journal is closed)
   if (moveForward && !journalOpen) {
@@ -366,12 +370,6 @@ function draw() {
 
   // Show hunger bar and journal icon
   displayHungerBar();
-
-  // Show journal if open
-  if (journalOpen) {
-    displayJournal();
-    return; // Don't render grass when journal is open
-  }
 
   // Camera setup
   let camHeight = 40; // Eye-level height
