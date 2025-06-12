@@ -15,6 +15,9 @@ let highMushrooms = [];  // red mushrooms
 let grassBlades = [];  // grass blades
 
 let redMushroomImg, brownMushroomImg, purpleMushroomImg, grassImg, leafImg;
+let red = 0;
+let brown = 0;
+let purple = 0;
 
 let hunger = 150; // Full hunger
 let maxHunger = 150;
@@ -120,6 +123,19 @@ function isPathTile(i, j) {
   return j >= -half && j <= +half;
 }
 
+function preload() {
+  redMushroomImg = loadImage("assets/red.PNG");
+  brownMushroomImg = loadImage("assets/brown.PNG");
+  purpleMushroomImg = loadImage("assets/purple.PNG");
+  grassImg = loadImage("assets/Grasss.png");
+  stickImg = loadImage("assets/stick.png");
+  leafImgs = [
+    loadImage("assets/leaf1.PNG"),
+    loadImage("assets/leaf2.PNG")
+  ];
+  leafImg = loadImage("assets/leaf1.PNG");
+}
+
 function setup() {
   console.log("setup called");
   let canvas = createCanvas(1200, 600, WEBGL);
@@ -163,22 +179,6 @@ function setup() {
   noiseFilter = createFilterShader(noiseFilterSrc);
   noiseFilter.setUniform("iResolution", [1, 1]);
   noiseFilter.setUniform("intensity", 1.0);
-}
-
-function preload() {
-  redMushroomImg = loadImage("assets/red.PNG");
-  brownMushroomImg = loadImage("assets/brown.PNG");
-  purpleMushroomImg = loadImage("assets/purple.PNG");
-  //grassImg = loadImage("assets/Grasss.png");
-  grassImg = loadImage("assets/Grasss.PNG", img => {
-    img.loadPixels(); // Force pixel info (sometimes helps WebGL transparency)
-  });
-  stickImg = loadImage("assets/stick.png");
-  leafImgs = [
-    loadImage("assets/leaf1.PNG"),
-    loadImage("assets/leaf2.PNG")
-  ];
-  leafImg = loadImage("assets/leaf1.PNG");
 }
 
 function iniLSPlants() {
@@ -594,6 +594,10 @@ function displayDeathScreen() {
   journalGraphics.textSize(16);
   journalGraphics.textStyle(NORMAL);
   journalGraphics.text("Reset browser to restart game", 40, 80);
+  journalGraphics.text("Mushrooms eaten", 40, 120);
+  journalGraphics.text("Brown mushrooms: " + brown, 40, 140);
+  journalGraphics.text("Red mushrooms: " + red, 40, 160);
+  journalGraphics.text("Purple mushrooms: " + purple, 40, 180);
   
   push();
   translate(-width / 2, -height / 2);
@@ -860,6 +864,7 @@ function EatMushroom()
       mushroomsByTile[`${playerTileX - 1},${1}`].regMushrooms = [];
       regMushrooms.splice(i, 1);
       hunger += 20;
+      brown += 1;
     }
   }
 
@@ -878,6 +883,7 @@ function EatMushroom()
       mushroomsByTile[`${playerTileX - 1},${1}`].highMushrooms = [];
       highMushrooms.splice(i, 1);
       highness += 0.01;
+      red += 1;
       console.log("Highness:", highness);
     }
   }
@@ -897,6 +903,7 @@ function EatMushroom()
       mushroomsByTile[`${playerTileX - 1},${1}`].poisonMushrooms = [];
       poisonMushrooms.splice(i, 1);
       hunger -= 10;
+      purple += 1;
     }
   }
 
