@@ -30,11 +30,10 @@ let bushLS;
 let yAxis;
 let xAxis;
 
-//dirt path
+//dirt path assets
 let dirtTex;
-
 let stickImg;
-
+let leafImgs = [];
 
 // How many tiles wide the path should be (in tile‐indices).
 // A value of 1 means only j==0 is path. If you wanted a 3-tile-wide path, set this to 3, etc.
@@ -97,6 +96,10 @@ function preload() {
     img.loadPixels(); // Force pixel info (sometimes helps WebGL transparency)
   });
   stickImg = loadImage("assets/stick.png");
+  leafImgs = [
+    loadImage("assets/leaf1.png"),
+    loadImage("assets/leaf2.png")
+  ];
 }
 
 function iniLSPlants() {
@@ -388,35 +391,49 @@ function drawTile(i, j) {
   // Ground with gradient color based on distance from player
   translate(x, 0, z);
 
-  if (isPathTile(i, j)) {
-    noStroke();
-    texture(dirtTex);
-    // box will now show your dirtTex on all faces
-    box(tileSize, 4, tileSize);
+    if (isPathTile(i, j)) {
+      // ─── Path tile ───
+      noStroke();
+      texture(dirtTex);
+      box(tileSize, 4, tileSize);
 
-    // seed so sticks stay in the same places on each visit
-    randomSeed(i * 5432 + j * 9876);
-    // pick up to 2 sticks per tile
-    let numSticks = floor(random(0, 3));
-    for (let s = 0; s < numSticks; s++) {
-      // random offset but keep them inside the tile bounds
-      let offsetX = random(-tileSize/2 + 5, tileSize/2 - 5);
-      let offsetZ = random(-tileSize/2 + 5, tileSize/2 - 5);
-      let rot     = random(TWO_PI);
+      // make sticks deterministic per tile, but only up to 1 now
+      randomSeed(i * 5432 + j * 9876);
+      const numSticks = floor(random(0, 2)); 
+      const gl = this._renderer.GL;
+      gl.disable(gl.DEPTH_TEST);
+      for (let s = 0; s < numSticks; s++) {
+        const offX = random(-tileSize/2 + 5, tileSize/2 - 5);
+        const offZ = random(-tileSize/2 + 5, tileSize/2 - 5);
+        const rot  = random(TWO_PI);
 
-      push();
-      // move to just above the top face of the box (top is at y = –2 in your coord system)
-      translate(offsetX, -2, offsetZ);
-      // rotate the plane to lie flat on the ground
-      rotateX(PI/2);
-      // spin it randomly around vertical axis
-      rotateZ(rot);
+        push();
+          translate(offX, -2.01, offZ);
+          rotateX(PI/2);
+          rotateZ(rot);
+          texture(stickImg);
+          plane(30, 5);
+        pop();
+      }
 
-      texture(stickImg);
-      // adjust dimensions to taste: e.g. 30×5 fits a 40×40 tile nicely
-      plane(30, 5);
-      pop();
-    }
+      // now sprinkle leaves—2 to 5 per tile
+      const numLeaves = floor(random(2, 6));
+      for (let L = 0; L < numLeaves; L++) {
+        const offX = random(-tileSize/2 + 5, tileSize/2 - 5);
+        const offZ = random(-tileSize/2 + 5, tileSize/2 - 5);
+        const rot  = random(TWO_PI);
+        const leaf = random(leafImgs);
+
+        push();
+          translate(offX, -2.01, offZ);
+          rotateX(PI/2);
+          rotateZ(rot);
+          texture(leaf);
+          // adjust 20×20 or whatever feels right
+          plane(8, 8);
+        pop();
+      gl.enable(gl.DEPTH_TEST);
+      }
   }
   else {
   // ─── 2B: Normal grass tile ───
