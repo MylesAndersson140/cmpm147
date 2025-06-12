@@ -712,12 +712,65 @@ function displayJournal() {
   journalGraphics.textStyle(BOLD);
   journalGraphics.text("Forager's Journal", 300, 20);
   
-  // Sample text
+  // Subtitle
   journalGraphics.fill(50, 50, 50);
-  journalGraphics.textAlign(LEFT, TOP);
+  journalGraphics.textAlign(CENTER, TOP);
   journalGraphics.textSize(16);
   journalGraphics.textStyle(NORMAL);
-  journalGraphics.text("Mushrooms can be good and bad :)", 40, 80);
+  journalGraphics.text("Field Guide to Mushrooms", 300, 55);
+  
+  // Brown Mushroom Section
+  journalGraphics.image(brownMushroomImg, 40, 90, 40, 50);
+  journalGraphics.fill(101, 67, 33);
+  journalGraphics.textAlign(LEFT, TOP);
+  journalGraphics.textSize(18);
+  journalGraphics.textStyle(BOLD);
+  journalGraphics.text("Brown Mushroom", 90, 95);
+  journalGraphics.fill(50, 50, 50);
+  journalGraphics.textSize(14);
+  journalGraphics.textStyle(NORMAL);
+  journalGraphics.text("Safe to eat. Provides sustenance and restores hunger.", 90, 115);
+  journalGraphics.text("Found: " + brown + " eaten", 90, 130);
+  
+  // Red Mushroom Section
+  journalGraphics.image(redMushroomImg, 40, 160, 40, 50);
+  journalGraphics.fill(150, 50, 50);
+  journalGraphics.textAlign(LEFT, TOP);
+  journalGraphics.textSize(18);
+  journalGraphics.textStyle(BOLD);
+  journalGraphics.text("Red Mushroom", 90, 165);
+  journalGraphics.fill(50, 50, 50);
+  journalGraphics.textSize(14);
+  journalGraphics.textStyle(NORMAL);
+  journalGraphics.text("Psychoactive properties. Causes visual distortions.", 90, 185);
+  journalGraphics.text("Consume with caution. Effects may be intense.", 90, 200);
+  journalGraphics.text("Found: " + red + " eaten", 90, 215);
+  
+  // Purple Mushroom Section
+  journalGraphics.image(purpleMushroomImg, 40, 250, 40, 50);
+  journalGraphics.fill(100, 50, 150);
+  journalGraphics.textAlign(LEFT, TOP);
+  journalGraphics.textSize(18);
+  journalGraphics.textStyle(BOLD);
+  journalGraphics.text("Purple Mushroom", 90, 255);
+  journalGraphics.fill(50, 50, 50);
+  journalGraphics.textSize(14);
+  journalGraphics.textStyle(NORMAL);
+  journalGraphics.text("TOXIC! Reduces hunger and causes illness.", 90, 275);
+  journalGraphics.text("Avoid consumption at all costs.", 90, 290);
+  journalGraphics.text("Found: " + purple + " eaten", 90, 305);
+  
+  // Controls section
+  journalGraphics.fill(101, 67, 33);
+  journalGraphics.textAlign(LEFT, TOP);
+  journalGraphics.textSize(14);
+  journalGraphics.textStyle(BOLD);
+  journalGraphics.text("Controls:", 40, 335);
+  journalGraphics.fill(50, 50, 50);
+  journalGraphics.textStyle(NORMAL);
+  journalGraphics.textSize(12);
+  journalGraphics.text("W/↑ - Move forward  |  Enter - Eat mushroom", 40, 355);
+  journalGraphics.text("J - Toggle journal  |  Click journal icon to open", 40, 370);
   
   push();
   translate(-width / 2, -height / 2);
