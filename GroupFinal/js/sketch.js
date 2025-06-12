@@ -166,10 +166,10 @@ function setup() {
 }
 
 function preload() {
-  redMushroomImg = loadImage("assets/red.png");
-  brownMushroomImg = loadImage("assets/brown.png");
+  redMushroomImg = loadImage("assets/red.PNG");
+  brownMushroomImg = loadImage("assets/brown.PNG");
   purpleMushroomImg = loadImage("assets/purple.png");
-  //grassImg = loadImage("assets/grass.png");
+  //grassImg = loadImage("assets/Grasss.png");
   grassImg = loadImage("assets/Grasss.png", img => {
     img.loadPixels(); // Force pixel info (sometimes helps WebGL transparency)
   });
