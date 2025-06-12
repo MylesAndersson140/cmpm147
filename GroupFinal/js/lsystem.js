@@ -124,6 +124,12 @@ class LSystem
                                     noStroke();
                                     fill('rgb(70,138,33)');
                                     ellipse(0, 0, 5, 10);
+									/*imageMode(CENTER);
+									push();
+									rotate(HALF_PI);
+									texture(leafImg);
+									plane(10, 10);
+									pop();*/
                                     break;
                                     
                             case 'X':

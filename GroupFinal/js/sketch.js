@@ -14,10 +14,10 @@ let poisonMushrooms = [];  // purple mushrooms
 let highMushrooms = [];  // red mushrooms
 let grassBlades = [];  // grass blades
 
-let redMushroomImg, brownMushroomImg, purpleMushroomImg, grassImg;
+let redMushroomImg, brownMushroomImg, purpleMushroomImg, grassImg, leafImg;
 
-let hunger = 100; // Full hunger
-let maxHunger = 100;
+let hunger = 150; // Full hunger
+let maxHunger = 150;
 let highness = 0;
 
 // Journal system
@@ -100,6 +100,7 @@ function preload() {
     loadImage("assets/leaf1.png"),
     loadImage("assets/leaf2.png")
   ];
+  leafImg = loadImage("assets/leaf1.png");
 }
 
 function iniLSPlants() {
@@ -626,8 +627,8 @@ function displayHungerBar() {
   translate(-width / 2, -height / 2);  // Top-left corner as origin
 
   // position and size
-  let barWidth = 200;
-  let barHeight = 20;
+  let barWidth = 300;
+  let barHeight = 25;
   let x = 20;
   let y = 20;
 
