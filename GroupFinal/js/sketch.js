@@ -346,6 +346,18 @@ function draw() {
     pop();
   }
   
+  // draw eat zone box
+  push();
+  let gl = this._renderer.GL;
+  gl.disable(gl.DEPTH_TEST);
+  translate(playerTileX * tileSize - 100 - tileSize/2, 0, 0);
+  rotate(PI/2, yAxis);
+  rotate(PI/2, xAxis);
+  fill(255, 217, 102, 128);
+  //box(50, 50, 75);
+  plane(100, 50);
+  gl.enable(gl.DEPTH_TEST);
+  pop();
 }
 
 function drawAssets(assets, h, image, x, y) {
