@@ -18,6 +18,7 @@ let redMushroomImg, brownMushroomImg, purpleMushroomImg, grassImg;
 
 let hunger = 100; // Full hunger
 let maxHunger = 100;
+let highness = 0;
 
 // Journal system
 let journalOpen = false;
@@ -27,6 +28,7 @@ let LSBushes = [];
 let bushLS;
 
 let yAxis;
+let xAxis;
 
 //dirt path
 let dirtTex;
@@ -52,6 +54,7 @@ function setup() {
   canvas.parent('canvas-container');
   noStroke();
   yAxis = createVector(0, -1, 0);
+  xAxis = createVector(-1, 0, 0);
   iniLSPlants();
 
   // let gl = this._renderer.GL;
@@ -346,6 +349,18 @@ function draw() {
     pop();
   }
   
+  // draw eat zone box
+  push();
+  let gl = this._renderer.GL;
+  gl.disable(gl.DEPTH_TEST);
+  translate(playerTileX * tileSize - 100 - tileSize/2, 0, 0);
+  rotate(PI/2, yAxis);
+  rotate(PI/2, xAxis);
+  fill(255, 217, 102, 128);
+  //box(50, 50, 75);
+  plane(100, 50);
+  gl.enable(gl.DEPTH_TEST);
+  pop();
 }
 
 function drawAssets(assets, h, image, x, y) {
@@ -657,6 +672,70 @@ function displayHungerBar() {
   pop();
 }
 
+function EatMushroom()
+{
+  let eatZoneX = playerTileX * tileSize - 100;
+  let eatZoneZ = playerTileZ * tileSize;
+  for (let i = 0; i < regMushrooms.length; i++)
+  {
+    if ((regMushrooms[i].x > eatZoneX - 25 && regMushrooms[i].x < eatZoneX + 25) && (regMushrooms[i].z > eatZoneZ - 50 && regMushrooms[i].z < eatZoneZ + 50))
+    {
+      // eat the mushroom so dont add it to the new array
+      console.log("Ate a regular mushroom!");
+      //console.log(regMushrooms[i].z / tileSize);
+      mushroomsByTile[`${playerTileX - 1},${-1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${-1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${-1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${1}`].regMushrooms = [];
+      mushroomsByTile[`${playerTileX - 1},${1}`].regMushrooms = [];
+      regMushrooms.splice(i, 1);
+      hunger += 20;
+    }
+  }
+
+  for (let i = 0; i < highMushrooms.length; i++)
+  {
+    if ((highMushrooms[i].x > eatZoneX - 25 && highMushrooms[i].x < eatZoneX + 25) && (highMushrooms[i].z > eatZoneZ - 50 && highMushrooms[i].z < eatZoneZ + 50))
+    {
+      // eat the mushroom so dont add it to the new array
+      console.log("Ate a magic mushroom!");
+      //console.log(regMushrooms[i].z / tileSize);
+      mushroomsByTile[`${playerTileX - 1},${-1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${-1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${-1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${1}`].highMushrooms = [];
+      mushroomsByTile[`${playerTileX - 1},${1}`].highMushrooms = [];
+      highMushrooms.splice(i, 1);
+      highness += 10;
+      console.log("Highness:", highness);
+    }
+  }
+
+  for (let i = 0; i < poisonMushrooms.length; i++)
+  {
+    if ((poisonMushrooms[i].x > eatZoneX - 25 && poisonMushrooms[i].x < eatZoneX + 25) && (poisonMushrooms[i].z > eatZoneZ - 50 && poisonMushrooms[i].z < eatZoneZ + 50))
+    {
+      // eat the mushroom so dont add it to the new array
+      console.log("Ate a poisonous mushroom!");
+      //console.log(regMushrooms[i].z / tileSize);
+      mushroomsByTile[`${playerTileX - 1},${-1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${-1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${-1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 3},${1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 2},${1}`].poisonMushrooms = [];
+      mushroomsByTile[`${playerTileX - 1},${1}`].poisonMushrooms = [];
+      poisonMushrooms.splice(i, 1);
+      hunger -= 10;
+    }
+  }
+
+  //console.log(regMushrooms);
+  console.log(playerTileX);
+  console.log(playerTileZ);
+}
+
 // Key functionalities
 function keyPressed() {
   if (!journalOpen) {  // Only allow movement when journal is closed
@@ -671,6 +750,10 @@ function keyPressed() {
     }
     if (key === 'd') {
       angle += 0.1;
+    }
+    if (key == "Enter")
+    {
+      EatMushroom();
     }
   }
   
