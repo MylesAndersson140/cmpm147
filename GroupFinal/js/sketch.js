@@ -168,17 +168,17 @@ function setup() {
 function preload() {
   redMushroomImg = loadImage("assets/red.PNG");
   brownMushroomImg = loadImage("assets/brown.PNG");
-  purpleMushroomImg = loadImage("assets/purple.png");
+  purpleMushroomImg = loadImage("assets/purple.PNG");
   //grassImg = loadImage("assets/Grasss.png");
-  grassImg = loadImage("assets/Grasss.png", img => {
+  grassImg = loadImage("assets/Grasss.PNG", img => {
     img.loadPixels(); // Force pixel info (sometimes helps WebGL transparency)
   });
   stickImg = loadImage("assets/stick.png");
   leafImgs = [
-    loadImage("assets/leaf1.png"),
-    loadImage("assets/leaf2.png")
+    loadImage("assets/leaf1.PNG"),
+    loadImage("assets/leaf2.PNG")
   ];
-  leafImg = loadImage("assets/leaf1.png");
+  leafImg = loadImage("assets/leaf1.PNG");
 }
 
 function iniLSPlants() {
